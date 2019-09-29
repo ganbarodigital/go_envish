@@ -84,6 +84,17 @@ func (e *Env) Environ() []string {
 	return e.pairs
 }
 
+// Expand replaces ${var} or $var in the input string.
+func (e *Env) Expand(fmt string) string {
+	// do we have an environment to work with?
+	if e == nil {
+		return ""
+	}
+
+	// yes we do
+	return os.Expand(fmt, e.Getenv)
+}
+
 // Getenv returns the value of the variable named by the key.
 //
 // If the key is not found, an empty string is returned.
