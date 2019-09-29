@@ -33,6 +33,7 @@ cmd.Start()
   - [NewEnv()](#newenv)
   - [Clearenv()](#clearenv)
   - [Environ()](#environ)
+  - [Expand()](#expand)
   - [Getenv()](#getenv)
   - [Length()](#length)
   - [LookupEnv()](#lookupenv)
@@ -119,6 +120,18 @@ localEnv := envish.NewEnv()
 // get a copy to pass into `exec`
 cmd := exec.Command(...)
 cmd.Env = localEnv.Environ()
+```
+
+### Expand()
+
+`Expand()` will replace `${key}` and `$key` entries in a format string.
+
+```golang
+// create a temporary environment
+localEnv := envish.NewEnv()
+
+// show what we have
+fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 ```
 
 ### Getenv()

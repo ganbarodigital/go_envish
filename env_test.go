@@ -386,3 +386,69 @@ func TestEnvUpdatedEntriesCanBeUnset(t *testing.T) {
 	assert.True(t, ok)
 	assert.Equal(t, testData1, testValue)
 }
+
+func TestEnvExpandCopesWithNilSequencePointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *Env
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Expand("hello ${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it didn't crash, we're good
+}
+
+func TestEnvExpandCopesWithEmptySequence(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env Env
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Expand("hello ${HOME}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it didn't crash, we're good
+}
+
+func TestEnvExpandUsesEntriesInTheTemporaryEnvironment(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestSequenceKey"
+	testValue1 := "this is a test"
+	testValue2 := "this is another test"
+	os.Setenv(testKey, testValue1)
+
+	// clean up after ourselves
+	defer os.Unsetenv(testKey)
+
+	expectedResult := "hello this is another test"
+
+	env := NewEnv()
+	env.Setenv(testKey, testValue2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Expand("hello ${TestSequenceKey}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
