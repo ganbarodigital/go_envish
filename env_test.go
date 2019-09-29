@@ -52,6 +52,9 @@ func TestNewEnvReturnsACopyOfTheProgramsEnvironment(t *testing.T) {
 
 	os.Setenv(testKey, expectedResult)
 
+	// clean up after ourselves
+	defer os.Unsetenv(testKey)
+
 	// ----------------------------------------------------------------
 	// perform the change
 
@@ -72,6 +75,10 @@ func TestEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	expectedResult := "this is my value"
 
 	os.Setenv(testKey, expectedResult)
+
+	// clean up after ourselves
+	defer os.Unsetenv(testKey)
+
 	env := NewEnv()
 
 	// now remove this from the program's environment
@@ -264,6 +271,9 @@ func TestEnvUnsetenvDoesNotChangeProgramEnviron(t *testing.T) {
 
 	os.Setenv(testKey, testData)
 
+	// clean up after ourselves
+	defer os.Unsetenv(testKey)
+
 	env := NewEnv()
 
 	// ----------------------------------------------------------------
@@ -294,6 +304,9 @@ func TestEnvEntriesFromProgramEnvironmentCanBeUpdated(t *testing.T) {
 	expectedResult := testData2
 
 	os.Setenv(testKey, testData1)
+
+	// clean up after ourselves
+	defer os.Unsetenv(testKey)
 
 	env := NewEnv()
 
