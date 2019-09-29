@@ -55,7 +55,7 @@ type Env struct {
 
 // NewEnv creates a copy of your process's current environment, as a key/val
 // pair
-func NewEnv(keys ...string) *Env {
+func NewEnv(options ...func(*Env)) *Env {
 	retval := Env{}
 
 	// grab a copy of the program's environment variables
@@ -63,6 +63,11 @@ func NewEnv(keys ...string) *Env {
 
 	// set aside some space to store our faster lookups
 	retval.pairKeys = make(map[string]int, 10)
+
+	// apply any options that we've been given
+	for _, option := range options {
+		option(&retval)
+	}
 
 	// all done
 	return &retval

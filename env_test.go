@@ -67,6 +67,31 @@ func TestNewEnvReturnsACopyOfTheProgramsEnvironment(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestNewEnvRunsAnySuppliedOptionFunctions(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	expectedResult := "this is my value"
+
+	assert.Empty(t, os.Getenv(testKey))
+
+	op := func(e *Env) {
+		e.Setenv(testKey, expectedResult)
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env := NewEnv(op)
+	actualResult := env.Getenv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
