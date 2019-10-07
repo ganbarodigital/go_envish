@@ -2,6 +2,10 @@
 
 ## develop
 
+## v2.0.0
+
+Released Monday, 7th October 2019.
+
 ### B/C Breaks
 
 We are making some changes to `go_envish` to make it easier to reuse.
