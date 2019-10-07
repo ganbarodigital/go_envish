@@ -12,6 +12,10 @@ Other B/C breaks:
 
 * Package name is now `envish` instead of `pipe`
 
+### Fixes
+
+* `Env.Unsetenv()` now works when trying to unset the first variable in the environment store.
+
 ## v1.1.0
 
 Released Sunday, 29th September 2019.

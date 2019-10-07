@@ -148,7 +148,7 @@ func (e *Env) Setenv(key, value string) error {
 // Unsetenv deletes the variable named by the key.
 func (e *Env) Unsetenv(key string) {
 	i := e.findPairIndex(key)
-	if i <= 0 {
+	if i < 0 {
 		return
 	}
 
