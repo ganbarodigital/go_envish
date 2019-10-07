@@ -2,6 +2,18 @@
 
 ## develop
 
+## v2.0.1
+
+Released Monday, 7th October 2019.
+
+### New
+
+* Added `ErrNilPointer` error
+
+### Fixes
+
+* Added nil pointer checks on all Env methods
+
 ## v2.0.0
 
 Released Monday, 7th October 2019.

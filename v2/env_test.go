@@ -122,6 +122,46 @@ func TestEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestEnvGetenvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	expectedResult := ""
+
+	env := Env{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Getenv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvGetenvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	expectedResult := ""
+
+	var env *Env = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Getenv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestEnvSetenvDoesNotChangeTheProgramEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -187,6 +227,46 @@ func TestEnvSetenvReturnsErrorForKeyThatOnlyHasWhitespace(t *testing.T) {
 	assert.Error(t, ok)
 }
 
+func TestEnvSetenvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	testData := "hello world"
+
+	env := Env{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	err := env.Setenv(testKey, testData)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Nil(t, err)
+}
+
+func TestEnvSetenvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	testData := "hello world"
+
+	var env *Env = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	err := env.Setenv(testKey, testData)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Error(t, err)
+}
+
 func TestEnvClearenvDeletesAllVariables(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -207,6 +287,38 @@ func TestEnvClearenvDeletesAllVariables(t *testing.T) {
 
 	assert.Empty(t, env.Environ())
 	assert.Empty(t, env.Getenv(testKey))
+}
+
+func TestEnvClearenvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := Env{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+}
+
+func TestEnvClearenvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *Env = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
 }
 
 func TestEnvLookupEnvReturnsTrueIfTheVariableExists(t *testing.T) {
@@ -240,6 +352,48 @@ func TestEnvLookupEnvReturnsFalseIfTheVariableDoesNotExist(t *testing.T) {
 
 	env := NewEnv()
 	env.Unsetenv(testKey)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.False(t, ok)
+}
+
+func TestEnvLookupEnvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	expectedResult := ""
+
+	env := Env{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.False(t, ok)
+}
+
+func TestEnvLookupEnvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+	expectedResult := ""
+
+	var env *Env = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -321,6 +475,41 @@ func TestEnvUnsetenvDoesNotChangeProgramEnviron(t *testing.T) {
 	assert.Equal(t, "", env.Getenv(testKey))
 }
 
+func TestEnvUnsetenvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+
+	env := Env{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Unsetenv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+}
+
+func TestEnvUnsetenvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewEnv"
+
+	var env *Env = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Unsetenv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+}
+
 func TestEnvEntriesFromProgramEnvironmentCanBeUpdated(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -335,7 +524,7 @@ func TestEnvEntriesFromProgramEnvironmentCanBeUpdated(t *testing.T) {
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
 
-	env := NewEnv()
+	env := NewEnv(CopyProgramEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -360,7 +549,7 @@ func TestEnvUpdatedEntriesCanBeUnset(t *testing.T) {
 	testData1 := "this is a test"
 	testData2 := "this is another test"
 
-	env := NewEnv()
+	env := NewEnv(CopyProgramEnv)
 
 	env.Setenv(testKey1, testData1)
 	env.Setenv(testKey2, testData1)
@@ -389,11 +578,48 @@ func TestEnvUpdatedEntriesCanBeUnset(t *testing.T) {
 	assert.Equal(t, testData1, testValue)
 }
 
-func TestEnvExpandCopesWithNilSequencePointer(t *testing.T) {
+func TestEnvEnvironCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var env *Env
+	env := Env{}
+	expectedResult := []string(nil)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvEnvironCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *Env = nil
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+
+}
+
+func TestEnvExpandCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *Env = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -406,7 +632,7 @@ func TestEnvExpandCopesWithNilSequencePointer(t *testing.T) {
 	// as long as it didn't crash, we're good
 }
 
-func TestEnvExpandCopesWithEmptySequence(t *testing.T) {
+func TestEnvExpandCopesWithEmptyStruct(t *testing.T) {
 	t.Parallel()
 
 	// ----------------------------------------------------------------
@@ -453,4 +679,41 @@ func TestEnvExpandUsesEntriesInTheTemporaryEnvironment(t *testing.T) {
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvLengthCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := Env{}
+	expectedResult := 0
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Length()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvLengthCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *Env = nil
+	expectedResult := 0
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Length()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+
 }

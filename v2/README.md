@@ -1,5 +1,7 @@
 # Welcome To Envish
 
+__This is the documentation for Envish v2. You can find the documentation for v1 in [README.v1.md](README.v1.md).
+
 ## Introduction
 
 Envish is a Golang library. It helps you emulate UNIX-like program environments in Golang packages.
@@ -209,6 +211,13 @@ localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 
 ```golang
 err := localEnv.Setenv("", "key-is-invalid")
+```
+
+`Setenv()` will return an `envish.ErrNilPointer` error if you call `Setenv()` with a nil pointer to the environment store:
+
+```golang
+var localEnv *Env = nil
+err := localEnv.Setenv("valid-key", "valid-value")
 ```
 
 Other errors may be added in future releases.
