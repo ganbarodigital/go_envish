@@ -524,7 +524,7 @@ func TestEnvEntriesFromProgramEnvironmentCanBeUpdated(t *testing.T) {
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
 
-	env := NewEnv()
+	env := NewEnv(CopyProgramEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -549,7 +549,7 @@ func TestEnvUpdatedEntriesCanBeUnset(t *testing.T) {
 	testData1 := "this is a test"
 	testData2 := "this is another test"
 
-	env := NewEnv()
+	env := NewEnv(CopyProgramEnv)
 
 	env.Setenv(testKey1, testData1)
 	env.Setenv(testKey2, testData1)
