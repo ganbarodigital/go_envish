@@ -33,7 +33,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package envish
 
 // ErrEmptyKey is returned whenever we're given a key that is zero-length
 // or only contains whitespace
