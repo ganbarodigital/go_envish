@@ -57,8 +57,8 @@ type Env struct {
 func NewEnv(options ...func(*Env)) *Env {
 	retval := Env{}
 
-	// set aside some space to store our faster lookups
-	retval.pairKeys = make(map[string]int, 10)
+	// set aside some space for our fast key lookup
+	retval.makePairIndex()
 
 	// apply any options that we've been given
 	for _, option := range options {
@@ -71,12 +71,24 @@ func NewEnv(options ...func(*Env)) *Env {
 
 // Clearenv deletes all entries
 func (e *Env) Clearenv() {
+	// do we have an environment store to work with?
+	if e == nil {
+		return
+	}
+
+	// yes, we do
 	e.pairs = []string{}
-	e.pairKeys = make(map[string]int, 10)
+	e.makePairIndex()
 }
 
 // Environ returns a copy of all entries in the form "key=value".
 func (e *Env) Environ() []string {
+	// do we have an environment store to work with?
+	if e == nil {
+		return []string{}
+	}
+
+	// yes we do
 	return e.pairs
 }
 
@@ -95,6 +107,12 @@ func (e *Env) Expand(fmt string) string {
 //
 // If the key is not found, an empty string is returned.
 func (e *Env) Getenv(key string) string {
+	// do we have an environment store to work with?
+	if e == nil {
+		return ""
+	}
+
+	// yes we do
 	i := e.findPairIndex(key)
 	if i >= 0 {
 		return e.getValueFromPair(i, key)
@@ -106,6 +124,12 @@ func (e *Env) Getenv(key string) string {
 
 // Length returns the number of key/value pairs stored in the Env
 func (e *Env) Length() int {
+	// do we have an environment store to work with?
+	if e == nil {
+		return 0
+	}
+
+	// yes we do
 	return len(e.pairs)
 }
 
@@ -114,6 +138,12 @@ func (e *Env) Length() int {
 // If the key is not found, an empty string is returned, and the returned
 // boolean is false.
 func (e *Env) LookupEnv(key string) (string, bool) {
+	// do we have an environment store to work with?
+	if e == nil {
+		return "", false
+	}
+
+	// yes we do
 	i := e.findPairIndex(key)
 	if i >= 0 {
 		return e.getValueFromPair(i, key), true
@@ -125,6 +155,11 @@ func (e *Env) LookupEnv(key string) (string, bool) {
 
 // Setenv sets the value of the variable named by the key.
 func (e *Env) Setenv(key, value string) error {
+	// do we have an environment store to work with
+	if e == nil {
+		return ErrNilPointer{"Env.Setenv"}
+	}
+
 	// make sure we have a key that we can work with
 	if len(key) == 0 || len(strings.TrimSpace(key)) == 0 {
 		return ErrEmptyKey{}
@@ -137,8 +172,7 @@ func (e *Env) Setenv(key, value string) error {
 		e.pairs[i] = key + "=" + value
 	} else {
 		// we have a new entry!
-		e.pairs = append(e.pairs, key+"="+value)
-		e.pairKeys[key] = len(e.pairs) - 1
+		e.appendPairIndex(key, value)
 	}
 
 	// all done
@@ -147,6 +181,14 @@ func (e *Env) Setenv(key, value string) error {
 
 // Unsetenv deletes the variable named by the key.
 func (e *Env) Unsetenv(key string) {
+	// do we have an environment store to work with?
+	if e == nil {
+		return
+	}
+
+	// yes we do
+	//
+	// but do we have this variable?
 	i := e.findPairIndex(key)
 	if i < 0 {
 		return
@@ -198,4 +240,20 @@ func (e *Env) findPairIndex(key string) int {
 
 func (e *Env) getValueFromPair(i int, key string) string {
 	return e.pairs[i][len(key)+1:]
+}
+
+func (e *Env) appendPairIndex(key, value string) {
+	// do we have a map to write to?
+	if e.pairKeys == nil {
+		e.makePairIndex()
+	}
+
+	// add the new keys to the end of the map
+	e.pairs = append(e.pairs, key+"="+value)
+	e.pairKeys[key] = len(e.pairs) - 1
+}
+
+func (e *Env) makePairIndex() {
+	// set aside some space to store our faster lookups
+	e.pairKeys = make(map[string]int, 10)
 }
