@@ -213,6 +213,13 @@ localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 err := localEnv.Setenv("", "key-is-invalid")
 ```
 
+`Setenv()` will return an `envish.ErrNilPointer` error if you call `Setenv()` with a nil pointer to the environment store:
+
+```golang
+var localEnv *Env = nil
+err := localEnv.Setenv("valid-key", "valid-value")
+```
+
 Other errors may be added in future releases.
 
 ### Unsetenv()
