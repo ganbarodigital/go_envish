@@ -53,13 +53,9 @@ type Env struct {
 	pairKeys map[string]int
 }
 
-// NewEnv creates a copy of your process's current environment, as a key/val
-// pair
+// NewEnv creates an empty environment store
 func NewEnv(options ...func(*Env)) *Env {
 	retval := Env{}
-
-	// grab a copy of the program's environment variables
-	retval.pairs = os.Environ()
 
 	// set aside some space to store our faster lookups
 	retval.pairKeys = make(map[string]int, 10)

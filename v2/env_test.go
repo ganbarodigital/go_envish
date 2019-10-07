@@ -43,14 +43,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewEnvReturnsACopyOfTheProgramsEnvironment(t *testing.T) {
+func TestNewEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
 	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
+	testData := "this is my value"
 
-	os.Setenv(testKey, expectedResult)
+	os.Setenv(testKey, testData)
 
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
@@ -64,7 +64,7 @@ func TestNewEnvReturnsACopyOfTheProgramsEnvironment(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, actualResult)
+	assert.Empty(t, actualResult)
 }
 
 func TestNewEnvRunsAnySuppliedOptionFunctions(t *testing.T) {
@@ -97,14 +97,16 @@ func TestEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	// setup your test
 
 	testKey := "TestNewEnv"
+	testData := "this is test data"
 	expectedResult := "this is my value"
 
-	os.Setenv(testKey, expectedResult)
+	os.Setenv(testKey, testData)
 
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
 
 	env := NewEnv()
+	env.Setenv(testKey, expectedResult)
 
 	// now remove this from the program's environment
 	os.Unsetenv(testKey)
