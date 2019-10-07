@@ -1,7 +1,5 @@
 # Welcome To Envish
 
-__This is the documentation for Envish v2. You can find the documentation for v1 in [README.v1.md](README.v1.md).
-
 ## Introduction
 
 Envish is a Golang library. It helps you emulate UNIX-like program environments in Golang packages.
@@ -33,7 +31,6 @@ cmd.Start()
   - [Getting Started](#getting-started)
 - [Package Docs](#package-docs)
   - [NewEnv()](#newenv)
-  - [NewEnv() With Functional Options](#newenv-with-functional-options)
   - [Clearenv()](#clearenv)
   - [Environ()](#environ)
   - [Expand()](#expand)
@@ -47,7 +44,7 @@ cmd.Start()
 
 ### Who Is Envish For?
 
-We've built Envish for anyone who needs to emulate a UNIX-like environment in their own Golang packages. Or anyone who just needs a simple key/value store with a familiar API.
+We've built Envish for anyone who needs to emulate a UNIX-like environment in their own Golang packages.
 
 We're using it ourselves for our [Pipe](https://github.com/ganbarodigital/go_pipe) and [Scriptish](https://github.com/ganbarodigital/go_scriptish) packages.
 
@@ -70,24 +67,16 @@ In the example above, the environment variable `DEBIAN_FRONTEND` is only set for
 Import Envish into your Golang code:
 
 ```golang
-import envish "github.com/ganbarodigital/go_envish/v2"
+import envish "github.com/ganbarodigital/go_envish"
 ```
-
-__Don't forget that `v2` on the end of the import, or you'll get an older version of this package!__
 
 Create a copy of your program's environment:
 
 ```golang
-localEnv := envish.NewEnv(envish.CopyProgramEnv)
+localEnv := NewEnv()
 ```
 
-or simply start with an empty environment store:
-
-```golang
-localVars := envish.NewEnv()
-```
-
-Get and set variables in the environment store as needed:
+Get and set temporary environment variables as needed:
 
 ```golang
 home := localEnv.Getenv()
@@ -96,11 +85,11 @@ localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 
 ## Package Docs
 
-Envish provides an API that's compatible with Golang's standard `os` environment functions. The only difference is that they work on the key/value pairs stored in the environment store, rather than on your program's environment.
+Envish provides an API that's compatible with Golang's standard `os` environment functions. The only difference is that they work on a copy of the program's environment.
 
 ### NewEnv()
 
-`NewEnv` creates an empty environment store:
+`NewEnv` creates a copy of your process's current environment.
 
 ```golang
 localEnv := envish.NewEnv()
@@ -108,25 +97,15 @@ localEnv := envish.NewEnv()
 
 It returns a `envish.Env()` struct.  The struct does not export any public fields.
 
-### NewEnv() With Functional Options
-
-You can pass [functional options](https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis) into `NewEnv()` to change the environment store before it is returned to you.
-
-`CopyProgramEnv` is a functional option that will populate the environment store with a copy of your program's environment:
-
-```golang
-localEnv := envish.NewEnv(CopyProgramEnv)
-```
-
 ### Clearenv()
 
-`Clearenv()` deletes all entries from the given environment store. The program's environment remains unchanged.
+`Clearenv()` deletes all entries from the given environment. The program's environment remains unchanged.
 
 ```golang
-// create a environment store
-localEnv := envish.NewEnv(CopyProgramEnv)
+// create a temporary environment
+localEnv := envish.NewEnv()
 
-// empty the environment store completely
+// empty the temporary environment completely
 localEnv.Clearenv()
 ```
 
@@ -135,7 +114,7 @@ localEnv.Clearenv()
 `Environ()` returns a copy of all entries in the form `key=value`. This is compatible with any Golang standard library, such as `exec`.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
 // get a copy to pass into `exec`
@@ -148,7 +127,7 @@ cmd.Env = localEnv.Environ()
 `Expand()` will replace `${key}` and `$key` entries in a format string.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
 // show what we have
@@ -162,19 +141,19 @@ fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 If you want to find out if a key exists, use [`LookupEnv()`](#lookupenv) instead.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
-// get a variable from the environment store
+// get a variable from that temporary environment
 home := localEnv.Getenv("HOME")
 ```
 
 ### Length()
 
-`Length()` returns the number of key/value pairs stored in the environment store.
+`Length()` returns the number of key/value pairs stored in the Env.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
 // find out how many variables it contains
@@ -188,7 +167,7 @@ fmt.Printf("environment has %d entries\n", localEnv.Length())
 If the key is not found, an empty string is returned, and the returned boolean is false.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
 // find out if a key exists
@@ -200,10 +179,10 @@ value, ok := localEnv.LookupEnv("HOME")
 `Setenv()` sets the value of the variable named by the key. The program's environment remains unchanged.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
-// set a value in the environment store
+// set a value in the temporary environment
 localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 ```
 
@@ -222,9 +201,9 @@ Other errors may be added in future releases.
 `Unsetenv()` does not return an error if the key is not found.
 
 ```golang
-// create an environment store
+// create a temporary environment
 localEnv := envish.NewEnv()
 
-// delete an entry from the environment store
+// delete an entry from the temporary environment
 localEnv.Unsetenv("HOME")
 ```
