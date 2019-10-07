@@ -12,6 +12,10 @@ Other B/C breaks:
 
 * Package name is now `envish` instead of `pipe`
 
+### New
+
+* Added NewEnv option: `envish.CopyProgramEnv` 
+
 ### Fixes
 
 * `Env.Unsetenv()` now works when trying to unset the first variable in the environment store.
