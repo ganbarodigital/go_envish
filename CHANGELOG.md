@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* Added `ErrNilPointer` error
+
 ## v2.0.0
 
 Released Monday, 7th October 2019.

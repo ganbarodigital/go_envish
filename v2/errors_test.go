@@ -58,3 +58,21 @@ func TestErrEmptyKey(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestErrNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := ErrNilPointer{"TestErrNilPointer"}
+	expectedResult := "nil pointer to environment store passed to TestErrNilPointer"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
