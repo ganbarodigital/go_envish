@@ -2,6 +2,14 @@
 
 ## develop
 
+## v2.1.0
+
+Released Tuesday, 8th October 2019.
+
+### New
+
+* `Env.Expand()` now supports UNIX shell special variable names
+
 ## v2.0.1
 
 Released Monday, 7th October 2019.

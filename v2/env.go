@@ -36,7 +36,6 @@
 package envish
 
 import (
-	"os"
 	"strings"
 )
 
@@ -100,7 +99,7 @@ func (e *Env) Expand(fmt string) string {
 	}
 
 	// yes we do
-	return os.Expand(fmt, e.Getenv)
+	return Expand(fmt, e.Getenv)
 }
 
 // Getenv returns the value of the variable named by the key.

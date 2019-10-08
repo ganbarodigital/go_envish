@@ -162,6 +162,32 @@ func TestEnvGetenvCopesWithNilPointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestEnvGetenvSetenvLookupEnvSupportDollarVars(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "$#"
+	expectedResult := "5"
+
+	env := NewEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Setenv(testKey, expectedResult)
+	actualResult1 := env.Getenv(testKey)
+	actualResult2, ok := env.LookupEnv(testKey)
+	actualEnviron := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult1)
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult2)
+	assert.Equal(t, []string{"$#=5"}, actualEnviron)
+}
+
 func TestEnvSetenvDoesNotChangeTheProgramEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -473,6 +499,29 @@ func TestEnvUnsetenvDoesNotChangeProgramEnviron(t *testing.T) {
 
 	// but gone from our Env
 	assert.Equal(t, "", env.Getenv(testKey))
+}
+
+func TestEnvUnsetenvSupportsDollarVars(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "$#"
+	expectedResult := ""
+
+	env := NewEnv()
+	env.Setenv(testKey, expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Unsetenv(testKey)
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.False(t, ok)
 }
 
 func TestEnvUnsetenvCopesWithEmptyStruct(t *testing.T) {
