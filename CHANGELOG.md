@@ -2,10 +2,13 @@
 
 ## develop
 
+## v2.1.0
+
+Released Tuesday, 8th October 2019.
+
 ### New
 
-* `Getenv()`, `LookupEnv()`, `Setenv()` and `Unsetenv()` all support UNIX shell-like `$` vars
-  - any leading `$` is silently ignored
+* `Env.Expand()` now supports UNIX shell special variable names
 
 ## v2.0.1
 

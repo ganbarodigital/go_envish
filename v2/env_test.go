@@ -185,7 +185,7 @@ func TestEnvGetenvSetenvLookupEnvSupportDollarVars(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult1)
 	assert.True(t, ok)
 	assert.Equal(t, expectedResult, actualResult2)
-	assert.Equal(t, []string{"#=5"}, actualEnviron)
+	assert.Equal(t, []string{"$#=5"}, actualEnviron)
 }
 
 func TestEnvSetenvDoesNotChangeTheProgramEnv(t *testing.T) {

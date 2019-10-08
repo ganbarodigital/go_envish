@@ -94,6 +94,27 @@ home := localEnv.Getenv()
 localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 ```
 
+## UNIX Shell Special Variables
+
+UNIX shells build and maintain a group of special variables, such as `$#`, `$*`, `$?` and so on. They're set automatically by the shell, and you cannot set them yourself.
+
+In Envish, you can `Getenv()` and `Setenv()` them like any other variable:
+
+```golang
+localEnv.Setenv("$#", "5")
+paramsCount := localEnv.Getenv("$#")
+```
+
+and `Expand()` will let you use them in strings:
+
+```golang
+fmt.Printf(localEnv.Expand("we have $# positional parameters"))
+```
+
+To make this work (and be readable!), we can't use the built-in `os.Expand()`. The built-in `os.Expand()` matches `$#` et al correctly, but doesn't send through the leading `$` symbol to the mapping function.
+
+Future releases will add support for more UNIX shell substitution patterns.
+
 ## Package Docs
 
 Envish provides an API that's compatible with Golang's standard `os` environment functions. The only difference is that they work on the key/value pairs stored in the environment store, rather than on your program's environment.
