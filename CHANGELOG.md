@@ -2,6 +2,11 @@
 
 ## develop
 
+### New
+
+* `Getenv()`, `LookupEnv()`, `Setenv()` and `Unsetenv()` all support UNIX shell-like `$` vars
+  - any leading `$` is silently ignored
+
 ## v2.0.1
 
 Released Monday, 7th October 2019.

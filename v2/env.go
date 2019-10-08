@@ -113,6 +113,7 @@ func (e *Env) Getenv(key string) string {
 	}
 
 	// yes we do
+	key = e.normaliseKeyName(key)
 	i := e.findPairIndex(key)
 	if i >= 0 {
 		return e.getValueFromPair(i, key)
@@ -144,6 +145,7 @@ func (e *Env) LookupEnv(key string) (string, bool) {
 	}
 
 	// yes we do
+	key = e.normaliseKeyName(key)
 	i := e.findPairIndex(key)
 	if i >= 0 {
 		return e.getValueFromPair(i, key), true
@@ -166,6 +168,7 @@ func (e *Env) Setenv(key, value string) error {
 	}
 
 	// we need to update the Golang-compatible list too
+	key = e.normaliseKeyName(key)
 	i := e.findPairIndex(key)
 	if i >= 0 {
 		// we're updating an existing entry
@@ -189,6 +192,7 @@ func (e *Env) Unsetenv(key string) {
 	// yes we do
 	//
 	// but do we have this variable?
+	key = e.normaliseKeyName(key)
 	i := e.findPairIndex(key)
 	if i < 0 {
 		return
@@ -256,4 +260,14 @@ func (e *Env) appendPairIndex(key, value string) {
 func (e *Env) makePairIndex() {
 	// set aside some space to store our faster lookups
 	e.pairKeys = make(map[string]int, 10)
+}
+
+func (e *Env) normaliseKeyName(key string) string {
+	// do we have a leading '$' sign to strip off?
+	if key[0] != '$' {
+		return key
+	}
+
+	// yes we do
+	return key[1:]
 }
