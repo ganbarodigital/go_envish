@@ -152,6 +152,31 @@ func (e *Env) LookupEnv(key string) (string, bool) {
 	return "", false
 }
 
+// MatchVarNames returns a list of variable names that start with the
+// given prefix.
+//
+// This is very useful if you want to support `${PARAM:=word}` shell
+// expansion in your own code.
+func (e *Env) MatchVarNames(prefix string) []string {
+	// our return value
+	retval := []string{}
+
+	// do we have an environment store to work with?
+	if e == nil {
+		return retval
+	}
+
+	// yes we do
+	for i := range e.pairs {
+		if strings.HasPrefix(e.pairs[i], prefix) {
+			retval = append(retval, e.getKeyFromPair(i))
+		}
+	}
+
+	// all done
+	return retval
+}
+
 // Setenv sets the value of the variable named by the key.
 func (e *Env) Setenv(key, value string) error {
 	// do we have an environment store to work with
@@ -235,6 +260,11 @@ func (e *Env) findPairIndex(key string) int {
 
 	// if we get here, the key doesn't exist in the pairs
 	return -1
+}
+
+func (e *Env) getKeyFromPair(i int) string {
+	pos := strings.Index(e.pairs[i], "=")
+	return e.pairs[i][:pos]
 }
 
 func (e *Env) getValueFromPair(i int, key string) string {

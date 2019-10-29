@@ -766,3 +766,137 @@ func TestEnvLengthCopesWithNilPointer(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 
 }
+
+func TestEnvMatchVarNamesReturnsAnEmptyListWhenEnvIsEmpty(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestEnvMatchVarNames"
+	env := NewEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Empty(t, actualResult)
+}
+
+func TestEnvMatchVarNamesIsCaseSensitive(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarName"
+	env := NewEnv()
+	env.Setenv("testnewenv", "dummy")
+	env.Setenv(testPrefix+"sOkay", "dummy")
+	env.Setenv(testPrefix+"sAnotherSuffix", "dummy")
+
+	expectedResult := []string{
+		"TestMatchVarNamesOkay",
+		"TestMatchVarNamesAnotherSuffix",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvMatchVarNamesOnlyMatchesPrefixes(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarName"
+	env := NewEnv()
+	env.Setenv(testPrefix+"sOkay", "dummy")
+	env.Setenv("Dummy"+testPrefix+"sAnotherSuffix", "dummy")
+
+	expectedResult := []string{
+		"TestMatchVarNamesOkay",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvMatchVarNamesMatchesIfKeyEqualsPrefix(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarNames"
+	env := NewEnv()
+	env.Setenv("testnewenv", "dummy")
+	env.Setenv(testPrefix, "dummy")
+	env.Setenv(testPrefix+"Okay", "dummy")
+
+	expectedResult := []string{
+		"TestMatchVarNames",
+		"TestMatchVarNamesOkay",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvMatchVarNamesCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarNames"
+	var env *Env = nil
+
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvMatchVarNamesCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarNames"
+	env := Env{}
+
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
