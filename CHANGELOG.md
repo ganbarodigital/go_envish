@@ -7,6 +7,11 @@
 * `envish.Env` is now `envish.LocalEnv`
 * `envish.NewEnv` is now `envish.NewLocalEnv`
 
+### New
+
+* Added `ProgramEnv` and its methods
+* Added `NewProgramEnv()`
+
 ## v2.3.0
 
 Released Tuesday, 29th October 2019.

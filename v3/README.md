@@ -31,7 +31,7 @@ cmd.Start()
   - [Why A Separate Package?](#why-a-separate-package)
 - [How Does It Work?](#how-does-it-work)
   - [Getting Started](#getting-started)
-- [Package Docs](#package-docs)
+- [LocalEnv](#localenv)
   - [NewLocalEnv()](#newlocalenv)
   - [NewLocalEnv() With Functional Options](#newlocalenv-with-functional-options)
   - [Clearenv()](#clearenv)
@@ -45,6 +45,19 @@ cmd.Start()
   - [MatchVarNames()](#matchvarnames)
   - [Setenv()](#setenv)
   - [Unsetenv()](#unsetenv)
+- [ProgramEnv](#programenv)
+  - [NewProgramEnv()](#newprogramenv)
+  - [Clearenv()](#clearenv-1)
+  - [Environ()](#environ-1)
+  - [Expand()](#expand-1)
+  - [Getenv()](#getenv-1)
+  - [IsExporter()](#isexporter-1)
+  - [Length()](#length-1)
+  - [LookupEnv()](#lookupenv-1)
+  - [LookupHomeDir()](#lookuphomedir-1)
+  - [MatchVarNames()](#matchvarnames-1)
+  - [Setenv()](#setenv-1)
+  - [Unsetenv()](#unsetenv-1)
 
 ## Why Use Envish?
 
@@ -97,7 +110,7 @@ home := localEnv.Getenv()
 localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 ```
 
-## Package Docs
+## LocalEnv
 
 Envish provides an API that's compatible with Golang's standard `os` environment functions. The only difference is that they work on the key/value pairs stored in the environment store, rather than on your program's environment.
 
@@ -291,4 +304,154 @@ localEnv := envish.NewLocalEnv()
 
 // delete an entry from the environment store
 localEnv.Unsetenv("HOME")
+```
+
+## ProgramEnv
+
+ProgramEnv gives you the same API as [LocalEnv](#localenv), only it works directly on your program's environment instead.
+
+### NewProgramEnv()
+
+`NewProgramEnv` creates an empty environment store:
+
+```golang
+progEnv := envish.NewProgramEnv()
+```
+
+It returns a `envish.ProgramEnv()` struct.  The struct does not export any public fields.
+
+### Clearenv()
+
+`Clearenv()` deletes all entries from your program's environment. Use with caution.
+
+```golang
+progEnv := envish.NewProgramEnv()
+progEnv.Clearenv()
+```
+
+### Environ()
+
+`Environ()` returns a copy of all entries in the form `key=value`. This is compatible with any Golang standard library, such as `exec`.
+
+```golang
+progEnv := envish.NewProgramEnv()
+
+// get a copy to pass into `exec`
+cmd := exec.Command(...)
+cmd.Env = progEnv.Environ()
+```
+
+### Expand()
+
+`Expand()` will replace `${key}` and `$key` entries in a format string.
+
+```golang
+progEnv := envish.NewProgramEnv()
+
+// show what we have
+fmt.Printf(progEnv.Expand("HOME is ${HOME}\n"))
+```
+
+`Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
+
+### Getenv()
+
+`Getenv()` returns the value of the variable named by the key. If the key is not found, an empty string is returned.
+
+If you want to find out if a key exists, use [`LookupEnv()`](#lookupenv) instead.
+
+```golang
+progEnv := envish.NewProgramEnv()
+
+// get a variable from your program's environment
+home := progEnv.Getenv("HOME")
+```
+
+### IsExporter()
+
+`IsExporter()` always returns `true`.
+
+```golang
+progEnv := envish.NewProgramEnv()
+// always TRUE
+exporting := progEnv.IsExporter()
+```
+
+### Length()
+
+`Length()` returns the number of key/value pairs stored in your program's environment.
+
+```golang
+env := envish.NewProgramEnv()
+
+// find out how many variables it contains
+fmt.Printf("environment has %d entries\n", env.Length())
+```
+
+### LookupEnv()
+
+`LookupEnv()` returns the value of the variable named by the key.
+
+If the key is not found, an empty string is returned, and the returned boolean is false.
+
+```golang
+progEnv := envish.NewProgramEnv()
+
+// find out if a key exists
+value, ok := progEnv.LookupEnv("HOME")
+```
+
+### LookupHomeDir()
+
+`LookupHomeDir()` returns the full path to the given user's home directory, or `false` if it cannot be retrieved for any reason.
+
+```golang
+progEnv := envish.NewProgramEnv()
+homeDir, ok := progEnv.LookupHomeDir("root")
+```
+
+If you pass an empty string into `LookupHomeDir()`, it will look up the current user's home directory.
+
+```golang
+progEnv := envish.NewProgramEnv()
+homeDir, ok := progEnv.LookupHomeDir("")
+
+// homeDir should be same as `os.UserHomeDir()`
+```
+
+### MatchVarNames()
+
+`MatchVarNames()` returns a list of keys that begin with the given prefix.
+
+```golang
+progEnv := envish.NewProgramEnv()
+
+// find all variables that begin with 'ANSIBLE_'
+keys := progEnv.MatchVarNames("ANSIBLE_")
+```
+
+### Setenv()
+
+`Setenv()` sets the value of the variable named by the key. This is published into your program's environment immediately.
+
+```golang
+env := envish.NewProgramEnv()
+
+// create/update an environment variable in your program's environment
+progEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
+```
+
+`Setenv` will return an error if something went wrong.
+
+### Unsetenv()
+
+`Unsetenv()` deletes the variable from your program's environment.
+
+`Unsetenv()` does not return an error if the key is not found.
+
+```golang
+progEnv := envish.NewProgramEnv()
+
+// delete an entry from your program's environment
+progEnv.Unsetenv("HOME")
 ```
