@@ -855,3 +855,64 @@ func TestOverlayEnvSetenvReturnsErrorIfEmptyStack(t *testing.T) {
 	assert.Error(t, actualResult)
 	assert.Equal(t, expectedResult, actualResult.Error())
 }
+
+func TestOverlayEnvUnsetenvUpdatesEveryEntryInTheStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1.1", "trout")
+	env2.Setenv("PARAM1.2", "haddock")
+
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Unsetenv("PARAM1.2")
+	actualResult1 := env1.Getenv("PARAM1.2")
+	actualResult2 := env2.Getenv("PARAM1.2")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Empty(t, actualResult1)
+	assert.Empty(t, actualResult2)
+}
+
+func TestOverlayEnvUnsetenvDoesNothingIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var stack *OverlayEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	assert.NotPanics(t, func() { stack.Unsetenv("PARAM") })
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// as long as it didn't crash, all is well
+}
+
+func TestOverlayEnvUnsetenvDoesNothingIfEmptyStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	stack := OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	assert.NotPanics(t, func() { stack.Unsetenv("PARAM") })
+
+	// ----------------------------------------------------------------
+	// test the results
+}

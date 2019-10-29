@@ -245,3 +245,17 @@ func (e *OverlayEnv) Setenv(key, value string) error {
 	// nope, it's a brand new variable
 	return e.envs[0].Setenv(key, value)
 }
+
+// Unsetenv deletes the variable named by the key.
+//
+// It will be deleted from all the environments in the stack.
+func (e *OverlayEnv) Unsetenv(key string) {
+	// do we have a stack?
+	if e == nil {
+		return
+	}
+
+	for _, env := range e.envs {
+		env.Unsetenv(key)
+	}
+}
