@@ -35,6 +35,10 @@
 
 package envish
 
+import (
+	"sort"
+)
+
 // OverlayEnv works on a collection of variable backing stores
 type OverlayEnv struct {
 	envs []Expander
@@ -79,4 +83,45 @@ func (e *OverlayEnv) Clearenv() {
 	}
 
 	// all done
+}
+
+// Environ returns a copy of all entries in the form "key=value".
+func (e *OverlayEnv) Environ() []string {
+	// our return value
+	retval := []string{}
+
+	// do we have a stack to work with?
+	if e == nil {
+		return retval
+	}
+
+	// we need somewhere to keep track of the variables we are exporting
+	foundPairs := make(map[string]string)
+
+	for _, env := range e.envs {
+		if !env.IsExporter() {
+			continue
+		}
+
+		pairs := env.Environ()
+		for _, pair := range pairs {
+			key := getKeyFromPair(pair)
+			_, ok := foundPairs[key]
+			if !ok {
+				foundPairs[key] = pair
+			}
+		}
+	}
+
+	// at this point, foundPairs needs to be flattened
+	for _, pair := range foundPairs {
+		retval = append(retval, pair)
+	}
+
+	// sort the results, otherwise they're non-deterministic
+	// which makes tests unreliable
+	sort.Strings(retval)
+
+	// all done
+	return retval
 }
