@@ -356,3 +356,120 @@ func TestOverlayEnvironReturnsEmptyListIfEmptyStruct(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestOverlayEnvGetenvSearchesTheStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM2.1", "trout")
+	env2.Setenv("PARAM2.2", "haddock")
+
+	expectedResult := "haddock"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Getenv("PARAM2.2")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvGetenvGivesPrecidenceToEarlierStackEntries(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1.1", "trout")
+	env2.Setenv("PARAM1.2", "haddock")
+
+	expectedResult := "world"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Getenv("PARAM1.2")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvGetenvReturnsEmptyStringIfVariableNotFound(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1.1", "trout")
+	env2.Setenv("PARAM1.2", "haddock")
+
+	expectedResult := ""
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Getenv("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvGetenvReturnsEmptyStringIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := ""
+	var stack *OverlayEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Getenv("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvGetenvReturnsEmptyStringIfEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := ""
+	stack := OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Getenv("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}

@@ -125,3 +125,24 @@ func (e *OverlayEnv) Environ() []string {
 	// all done
 	return retval
 }
+
+// Getenv returns the value of the variable named by the key.
+//
+// If the key is not found, an empty string is returned.
+func (e *OverlayEnv) Getenv(key string) string {
+	// do we have a variable backing store to work with?
+	if e == nil {
+		return ""
+	}
+
+	// search for this variable
+	for _, env := range e.envs {
+		value, ok := env.LookupEnv(key)
+		if ok {
+			return value
+		}
+	}
+
+	// if we get here, then it doesn't exist
+	return ""
+}
