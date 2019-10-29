@@ -4,7 +4,12 @@
 
 ### New
 
+* `Env.Expand()` now uses ShellExpand, supports a lot more string expansion features than before
 * `Env.LookupHomeDir()` added
+
+### Deps
+
+* Added `go_shellexpand` v0.1.0
 
 ## v2.2.0
 

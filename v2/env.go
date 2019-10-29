@@ -38,6 +38,8 @@ package envish
 import (
 	"os/user"
 	"strings"
+
+	shellexpand "github.com/ganbarodigital/go_shellexpand"
 )
 
 // Env holds a list key/value pairs.
@@ -96,11 +98,27 @@ func (e *Env) Environ() []string {
 func (e *Env) Expand(fmt string) string {
 	// do we have an environment to work with?
 	if e == nil {
-		return ""
+		return fmt
 	}
 
 	// yes we do
-	return Expand(fmt, e.Getenv)
+	cb := shellexpand.ExpansionCallbacks{
+		AssignToVar:   e.Setenv,
+		LookupHomeDir: e.LookupHomeDir,
+		LookupVar:     e.LookupEnv,
+		MatchVarNames: e.MatchVarNames,
+	}
+
+	// attempt full-on shell expansion
+	retval, err := shellexpand.Expand(fmt, cb)
+
+	// did it work?
+	if err != nil {
+		return fmt
+	}
+
+	// yes it did :)
+	return retval
 }
 
 // Getenv returns the value of the variable named by the key.

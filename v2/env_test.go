@@ -731,6 +731,28 @@ func TestEnvExpandUsesEntriesInTheTemporaryEnvironment(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestEnvExpandReturnsOriginalStringIfExpansionFails(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewEnv()
+
+	// the search pattern is invalid, and this will trigger an error
+	expectedResult := "hello ${TestSequenceKey#abc[}"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Expand(expectedResult)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestEnvLengthCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test

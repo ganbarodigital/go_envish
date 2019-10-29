@@ -157,6 +157,8 @@ localEnv := envish.NewEnv()
 fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 ```
 
+`Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
+
 ### Getenv()
 
 `Getenv()` returns the value of the variable named by the key. If the key is not found, an empty string is returned.
