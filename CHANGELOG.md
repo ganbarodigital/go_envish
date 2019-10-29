@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* `Env.MatchVarNames()` added
+
 ## v2.1.0
 
 Released Tuesday, 8th October 2019.

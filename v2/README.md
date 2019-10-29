@@ -40,6 +40,7 @@ cmd.Start()
   - [Getenv()](#getenv)
   - [Length()](#length)
   - [LookupEnv()](#lookupenv)
+  - [MatchVarNames()](#matchvarnames)
   - [Setenv()](#setenv)
   - [Unsetenv()](#unsetenv)
 
@@ -193,6 +194,18 @@ localEnv := envish.NewEnv()
 
 // find out if a key exists
 value, ok := localEnv.LookupEnv("HOME")
+```
+
+### MatchVarNames()
+
+`MatchVarNames()` returns a list of keys that begin with the given prefix.
+
+```golang
+// create an environment store
+localEnv := envish.NewEnv()
+
+// find all variables that begin with 'ANSIBLE_'
+keys := localEnv.MatchVarNames("ANSIBLE_")
 ```
 
 ### Setenv()
