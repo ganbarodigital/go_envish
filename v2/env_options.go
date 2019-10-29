@@ -35,31 +35,8 @@
 
 package envish
 
-// Reader is the interface that wraps a basic, read-only
-// variable backing store
-type Reader interface {
-	// Environ returns a copy of all entries in the form "key=value".
-	Environ() []string
-
-	// Getenv returns the value of the variable named by the key.
-	//
-	// If the key is not found, an empty string is returned.
-	Getenv(key string) string
-
-	// IsExporter returns true if this backing store holds variables that
-	// should be exported to external programs
-	IsExporter() bool
-
-	// LookupEnv returns the value of the variable named by the key.
-	//
-	// If the key is not found, an empty string is returned, and the returned
-	// boolean is false.
-	LookupEnv(key string) (string, bool)
-
-	// MatchVarNames returns a list of variable names that start with the
-	// given prefix.
-	//
-	// This is very useful if you want to support `${PARAM:=word}` shell
-	// expansion in your own code.
-	MatchVarNames(prefix string) []string
+// SetAsExporter sets a flag so that the EnvStack will include its contents
+// when building an environ to export to Golang's exec package.
+func SetAsExporter(e *Env) {
+	e.isExporter = true
 }

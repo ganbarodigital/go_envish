@@ -985,3 +985,39 @@ func TestEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	assert.False(t, ok)
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestEnvIsNotAnExporterByDefault(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewEnv()
+	expectedResult := false
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestEnvCanBeCreatedAsExporter(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewEnv(SetAsExporter)
+	expectedResult := true
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}

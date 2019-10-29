@@ -38,6 +38,7 @@ cmd.Start()
   - [Environ()](#environ)
   - [Expand()](#expand)
   - [Getenv()](#getenv)
+  - [IsExporter()](#isexporter)
   - [Length()](#length)
   - [LookupEnv()](#lookupenv)
   - [LookupHomeDir()](#lookuphomedir)
@@ -171,6 +172,28 @@ localEnv := envish.NewEnv()
 
 // get a variable from the environment store
 home := localEnv.Getenv("HOME")
+```
+
+### IsExporter()
+
+`IsExporter()` returns true if the environment store's contents should be exported to external programs.
+
+```golang
+// create an environment store
+localEnv := envish.NewEnv()
+
+// by default, the environment store is NOT an exporter
+exporting := localEnv.IsExporter()
+```
+
+If you want to change this hint, use the option function `SetAsExporter`:
+
+```golang
+// create an environment store
+localEnv := envish.NewEnv(envish.SetAsExporter)
+
+// this will now return TRUE
+exporting := localEnv.IsExporter()
 ```
 
 ### Length()
