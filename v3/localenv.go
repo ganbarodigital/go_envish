@@ -139,7 +139,8 @@ func (e *LocalEnv) Getenv(key string) string {
 	// yes we do
 	i := e.findPairIndex(key)
 	if i >= 0 {
-		return e.getValueFromPair(i, key)
+		key := getKeyFromPair(e.pairs[i])
+		return getValueFromPair(e.pairs[i], key)
 	}
 
 	// not found
@@ -176,7 +177,8 @@ func (e *LocalEnv) LookupEnv(key string) (string, bool) {
 	// yes we do
 	i := e.findPairIndex(key)
 	if i >= 0 {
-		return e.getValueFromPair(i, key), true
+		key := getKeyFromPair(e.pairs[i])
+		return getValueFromPair(e.pairs[i], key), true
 	}
 
 	// not found
@@ -219,7 +221,7 @@ func (e *LocalEnv) MatchVarNames(prefix string) []string {
 	// yes we do
 	for i := range e.pairs {
 		if strings.HasPrefix(e.pairs[i], prefix) {
-			retval = append(retval, e.getKeyFromPair(i))
+			retval = append(retval, getKeyFromPair(e.pairs[i]))
 		}
 	}
 
@@ -310,15 +312,6 @@ func (e *LocalEnv) findPairIndex(key string) int {
 
 	// if we get here, the key doesn't exist in the pairs
 	return -1
-}
-
-func (e *LocalEnv) getKeyFromPair(i int) string {
-	pos := strings.Index(e.pairs[i], "=")
-	return e.pairs[i][:pos]
-}
-
-func (e *LocalEnv) getValueFromPair(i int, key string) string {
-	return e.pairs[i][len(key)+1:]
 }
 
 func (e *LocalEnv) appendPairIndex(key, value string) {
