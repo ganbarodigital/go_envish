@@ -146,3 +146,24 @@ func (e *OverlayEnv) Getenv(key string) string {
 	// if we get here, then it doesn't exist
 	return ""
 }
+
+// LookupEnv returns the value of the variable named by the key.
+//
+// If the key is not found, an empty string is returned, and the returned
+// boolean is false.
+func (e *OverlayEnv) LookupEnv(key string) (string, bool) {
+	// do we have a stack?
+	if e == nil {
+		return "", false
+	}
+
+	for _, env := range e.envs {
+		value, ok := env.LookupEnv(key)
+		if ok {
+			return value, true
+		}
+	}
+
+	// no joy
+	return "", false
+}
