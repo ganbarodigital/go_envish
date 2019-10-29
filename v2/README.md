@@ -40,6 +40,7 @@ cmd.Start()
   - [Getenv()](#getenv)
   - [Length()](#length)
   - [LookupEnv()](#lookupenv)
+  - [LookupHomeDir()](#lookuphomedir)
   - [MatchVarNames()](#matchvarnames)
   - [Setenv()](#setenv)
   - [Unsetenv()](#unsetenv)
@@ -194,6 +195,24 @@ localEnv := envish.NewEnv()
 
 // find out if a key exists
 value, ok := localEnv.LookupEnv("HOME")
+```
+
+### LookupHomeDir()
+
+`LookupHomeDir()` returns the full path to the given user's home directory, or `false` if it cannot be retrieved for any reason.
+
+```golang
+localEnv := envish.NewEnv()
+homeDir, ok := localEnv.LookupHomeDir("root")
+```
+
+If you pass an empty string into `LookupHomeDir()`, it will look up the current user's home directory.
+
+```golang
+localEnv := envish.NewEnv()
+homeDir, ok := localEnv.LookupHomeDir("")
+
+// homeDir should be same as `os.UserHomeDir()`
 ```
 
 ### MatchVarNames()

@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* `Env.LookupHomeDir()` added
+
 ## v2.2.0
 
 Released Tuesday, 29th October 2019.
