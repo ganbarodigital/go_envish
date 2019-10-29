@@ -59,6 +59,24 @@ func TestErrEmptyKey(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestErrEmptyStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := ErrEmptyEnvStack{"TestErrEmptyStack"}
+	expectedResult := "env stack is empty; TestErrEmptyStack"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestErrNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
