@@ -41,6 +41,6 @@ import "os"
 // environment store.
 //
 // It replaces any existing variables in the environment store.
-func CopyProgramEnv(e *Env) {
+func CopyProgramEnv(e *LocalEnv) {
 	e.pairs = os.Environ()
 }

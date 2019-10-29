@@ -57,7 +57,7 @@ func TestCopyProgramEnvCopiesTheProgramsEnvironmentIntoTheStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env := NewEnv(CopyProgramEnv)
+	env := NewLocalEnv(CopyProgramEnv)
 	actualResult := env.Getenv(testKey)
 
 	// ----------------------------------------------------------------

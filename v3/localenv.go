@@ -42,8 +42,8 @@ import (
 	shellexpand "github.com/ganbarodigital/go_shellexpand"
 )
 
-// Env holds a list key/value pairs.
-type Env struct {
+// LocalEnv holds a list key/value pairs.
+type LocalEnv struct {
 	// pairs is the list we'll need to pass to Golang's standard library
 	// for things like running external software
 	pairs []string
@@ -61,9 +61,9 @@ type Env struct {
 	isExporter bool
 }
 
-// NewEnv creates an empty environment store
-func NewEnv(options ...func(*Env)) *Env {
-	retval := Env{}
+// NewLocalEnv creates an empty environment store
+func NewLocalEnv(options ...func(*LocalEnv)) *LocalEnv {
+	retval := LocalEnv{}
 
 	// set aside some space for our fast key lookup
 	retval.makePairIndex()
@@ -78,7 +78,7 @@ func NewEnv(options ...func(*Env)) *Env {
 }
 
 // Clearenv deletes all entries
-func (e *Env) Clearenv() {
+func (e *LocalEnv) Clearenv() {
 	// do we have an environment store to work with?
 	if e == nil {
 		return
@@ -90,7 +90,7 @@ func (e *Env) Clearenv() {
 }
 
 // Environ returns a copy of all entries in the form "key=value".
-func (e *Env) Environ() []string {
+func (e *LocalEnv) Environ() []string {
 	// do we have an environment store to work with?
 	if e == nil {
 		return []string{}
@@ -101,7 +101,7 @@ func (e *Env) Environ() []string {
 }
 
 // Expand replaces ${var} or $var in the input string.
-func (e *Env) Expand(fmt string) string {
+func (e *LocalEnv) Expand(fmt string) string {
 	// do we have an environment to work with?
 	if e == nil {
 		return fmt
@@ -130,7 +130,7 @@ func (e *Env) Expand(fmt string) string {
 // Getenv returns the value of the variable named by the key.
 //
 // If the key is not found, an empty string is returned.
-func (e *Env) Getenv(key string) string {
+func (e *LocalEnv) Getenv(key string) string {
 	// do we have an environment store to work with?
 	if e == nil {
 		return ""
@@ -148,12 +148,12 @@ func (e *Env) Getenv(key string) string {
 
 // IsExporter returns true if this backing store holds variables that
 // should be exported to external programs
-func (e *Env) IsExporter() bool {
+func (e *LocalEnv) IsExporter() bool {
 	return e.isExporter
 }
 
 // Length returns the number of key/value pairs stored in the Env
-func (e *Env) Length() int {
+func (e *LocalEnv) Length() int {
 	// do we have an environment store to work with?
 	if e == nil {
 		return 0
@@ -167,7 +167,7 @@ func (e *Env) Length() int {
 //
 // If the key is not found, an empty string is returned, and the returned
 // boolean is false.
-func (e *Env) LookupEnv(key string) (string, bool) {
+func (e *LocalEnv) LookupEnv(key string) (string, bool) {
 	// do we have an environment store to work with?
 	if e == nil {
 		return "", false
@@ -185,7 +185,7 @@ func (e *Env) LookupEnv(key string) (string, bool) {
 
 // LookupHomeDir retrieves the given user's home directory, or false if
 // that cannot be found
-func (e *Env) LookupHomeDir(username string) (string, bool) {
+func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
 	var details *user.User
 	var err error
 
@@ -207,7 +207,7 @@ func (e *Env) LookupHomeDir(username string) (string, bool) {
 //
 // This is very useful if you want to support `${PARAM:=word}` shell
 // expansion in your own code.
-func (e *Env) MatchVarNames(prefix string) []string {
+func (e *LocalEnv) MatchVarNames(prefix string) []string {
 	// our return value
 	retval := []string{}
 
@@ -228,10 +228,10 @@ func (e *Env) MatchVarNames(prefix string) []string {
 }
 
 // Setenv sets the value of the variable named by the key.
-func (e *Env) Setenv(key, value string) error {
+func (e *LocalEnv) Setenv(key, value string) error {
 	// do we have an environment store to work with
 	if e == nil {
-		return ErrNilPointer{"Env.Setenv"}
+		return ErrNilPointer{"LocalEnv.Setenv"}
 	}
 
 	// make sure we have a key that we can work with
@@ -254,7 +254,7 @@ func (e *Env) Setenv(key, value string) error {
 }
 
 // Unsetenv deletes the variable named by the key.
-func (e *Env) Unsetenv(key string) {
+func (e *LocalEnv) Unsetenv(key string) {
 	// do we have an environment store to work with?
 	if e == nil {
 		return
@@ -285,7 +285,7 @@ func (e *Env) Unsetenv(key string) {
 	e.pairKeys = newPairKeys
 }
 
-func (e *Env) findPairIndex(key string) int {
+func (e *LocalEnv) findPairIndex(key string) int {
 	// special case - we've already got this cached
 	i, ok := e.pairKeys[key]
 	if ok {
@@ -312,16 +312,16 @@ func (e *Env) findPairIndex(key string) int {
 	return -1
 }
 
-func (e *Env) getKeyFromPair(i int) string {
+func (e *LocalEnv) getKeyFromPair(i int) string {
 	pos := strings.Index(e.pairs[i], "=")
 	return e.pairs[i][:pos]
 }
 
-func (e *Env) getValueFromPair(i int, key string) string {
+func (e *LocalEnv) getValueFromPair(i int, key string) string {
 	return e.pairs[i][len(key)+1:]
 }
 
-func (e *Env) appendPairIndex(key, value string) {
+func (e *LocalEnv) appendPairIndex(key, value string) {
 	// do we have a map to write to?
 	if e.pairKeys == nil {
 		e.makePairIndex()
@@ -332,7 +332,7 @@ func (e *Env) appendPairIndex(key, value string) {
 	e.pairKeys[key] = len(e.pairs) - 1
 }
 
-func (e *Env) makePairIndex() {
+func (e *LocalEnv) makePairIndex() {
 	// set aside some space to store our faster lookups
 	e.pairKeys = make(map[string]int, 10)
 }

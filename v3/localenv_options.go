@@ -37,6 +37,6 @@ package envish
 
 // SetAsExporter sets a flag so that the EnvStack will include its contents
 // when building an environ to export to Golang's exec package.
-func SetAsExporter(e *Env) {
+func SetAsExporter(e *LocalEnv) {
 	e.isExporter = true
 }

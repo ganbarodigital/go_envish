@@ -2,6 +2,15 @@
 
 ## develop
 
+### Backwards-Compatibility Breaks
+
+* `envish.Env` is now `envish.LocalEnv`
+* `envish.NewEnv` is now `envish.NewLocalEnv`
+
+## v2.3.0
+
+Released Tuesday, 29th October 2019.
+
 ### New
 
 * `Env.Expand()` now uses ShellExpand, supports a lot more string expansion features than before
