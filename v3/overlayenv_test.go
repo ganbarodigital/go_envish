@@ -358,6 +358,60 @@ func TestOverlayEnvironReturnsEmptyListIfEmptyStruct(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestOverlayExpandSearchesTheStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1_1", "hello")
+	env1.Setenv("PARAM1_2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM2_1", "trout")
+	env2.Setenv("PARAM1_2", "haddock")
+
+	expectedResult := "hello, world trout"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Expand("${PARAM1_1}, ${PARAM1_2} ${PARAM2_1}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayExpandReturnsOriginalStringIfExpansionFails(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1_1", "hello")
+	env1.Setenv("PARAM1_2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1_1", "trout")
+	env2.Setenv("PARAM1_2", "haddock")
+
+	expectedResult := "${PARAM1_1#abc[}, ${PARAM1_2}"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Expand(expectedResult)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestOverlayEnvGetenvSearchesTheStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
