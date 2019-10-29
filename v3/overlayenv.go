@@ -36,6 +36,7 @@
 package envish
 
 import (
+	"os/user"
 	"sort"
 )
 
@@ -166,4 +167,23 @@ func (e *OverlayEnv) LookupEnv(key string) (string, bool) {
 
 	// no joy
 	return "", false
+}
+
+// LookupHomeDir retrieves the given user's home directory, or false if
+// that cannot be found
+func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
+	var details *user.User
+	var err error
+
+	if username == "" {
+		details, err = user.Current()
+	} else {
+		details, err = user.Lookup(username)
+	}
+
+	if err != nil {
+		return "", false
+	}
+
+	return details.HomeDir, true
 }

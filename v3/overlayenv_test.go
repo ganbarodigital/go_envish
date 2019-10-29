@@ -37,6 +37,7 @@ package envish
 
 import (
 	"os"
+	"os/user"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -588,6 +589,68 @@ func TestOverlayEnvLookupEnvReturnsEmptyStringIfEmptyStruct(t *testing.T) {
 	// perform the change
 
 	actualResult, ok := stack.LookupEnv("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult, err := os.UserHomeDir()
+	assert.Nil(t, err)
+
+	env := NewOverlayEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	details, err := user.Lookup("root")
+	assert.Nil(t, err)
+	expectedResult := details.HomeDir
+
+	env := NewOverlayEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("root")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewOverlayEnv()
+	expectedResult := ""
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("this user does not exist")
 
 	// ----------------------------------------------------------------
 	// test the results
