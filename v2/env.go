@@ -53,6 +53,12 @@ type Env struct {
 	// we populate this whenever anyone does a lookup, to speed up
 	// any subsequent lookups of the same variable
 	pairKeys map[string]int
+
+	// should the variables in here be made available to external programs?
+	//
+	// this helps our EnvStack work out which stacked environments to
+	// export out
+	isExporter bool
 }
 
 // NewEnv creates an empty environment store
@@ -138,6 +144,12 @@ func (e *Env) Getenv(key string) string {
 
 	// not found
 	return ""
+}
+
+// IsExporter returns true if this backing store holds variables that
+// should be exported to external programs
+func (e *Env) IsExporter() bool {
+	return e.isExporter
 }
 
 // Length returns the number of key/value pairs stored in the Env
