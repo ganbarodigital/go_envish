@@ -38,8 +38,10 @@ cmd.Start()
   - [Environ()](#environ)
   - [Expand()](#expand)
   - [Getenv()](#getenv)
+  - [IsExporter()](#isexporter)
   - [Length()](#length)
   - [LookupEnv()](#lookupenv)
+  - [LookupHomeDir()](#lookuphomedir)
   - [MatchVarNames()](#matchvarnames)
   - [Setenv()](#setenv)
   - [Unsetenv()](#unsetenv)
@@ -156,6 +158,8 @@ localEnv := envish.NewEnv()
 fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 ```
 
+`Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
+
 ### Getenv()
 
 `Getenv()` returns the value of the variable named by the key. If the key is not found, an empty string is returned.
@@ -168,6 +172,28 @@ localEnv := envish.NewEnv()
 
 // get a variable from the environment store
 home := localEnv.Getenv("HOME")
+```
+
+### IsExporter()
+
+`IsExporter()` returns true if the environment store's contents should be exported to external programs.
+
+```golang
+// create an environment store
+localEnv := envish.NewEnv()
+
+// by default, the environment store is NOT an exporter
+exporting := localEnv.IsExporter()
+```
+
+If you want to change this hint, use the option function `SetAsExporter`:
+
+```golang
+// create an environment store
+localEnv := envish.NewEnv(envish.SetAsExporter)
+
+// this will now return TRUE
+exporting := localEnv.IsExporter()
 ```
 
 ### Length()
@@ -194,6 +220,24 @@ localEnv := envish.NewEnv()
 
 // find out if a key exists
 value, ok := localEnv.LookupEnv("HOME")
+```
+
+### LookupHomeDir()
+
+`LookupHomeDir()` returns the full path to the given user's home directory, or `false` if it cannot be retrieved for any reason.
+
+```golang
+localEnv := envish.NewEnv()
+homeDir, ok := localEnv.LookupHomeDir("root")
+```
+
+If you pass an empty string into `LookupHomeDir()`, it will look up the current user's home directory.
+
+```golang
+localEnv := envish.NewEnv()
+homeDir, ok := localEnv.LookupHomeDir("")
+
+// homeDir should be same as `os.UserHomeDir()`
 ```
 
 ### MatchVarNames()

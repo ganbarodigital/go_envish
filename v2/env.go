@@ -36,7 +36,10 @@
 package envish
 
 import (
+	"os/user"
 	"strings"
+
+	shellexpand "github.com/ganbarodigital/go_shellexpand"
 )
 
 // Env holds a list key/value pairs.
@@ -50,6 +53,12 @@ type Env struct {
 	// we populate this whenever anyone does a lookup, to speed up
 	// any subsequent lookups of the same variable
 	pairKeys map[string]int
+
+	// should the variables in here be made available to external programs?
+	//
+	// this helps our EnvStack work out which stacked environments to
+	// export out
+	isExporter bool
 }
 
 // NewEnv creates an empty environment store
@@ -95,11 +104,27 @@ func (e *Env) Environ() []string {
 func (e *Env) Expand(fmt string) string {
 	// do we have an environment to work with?
 	if e == nil {
-		return ""
+		return fmt
 	}
 
 	// yes we do
-	return Expand(fmt, e.Getenv)
+	cb := shellexpand.ExpansionCallbacks{
+		AssignToVar:   e.Setenv,
+		LookupHomeDir: e.LookupHomeDir,
+		LookupVar:     e.LookupEnv,
+		MatchVarNames: e.MatchVarNames,
+	}
+
+	// attempt full-on shell expansion
+	retval, err := shellexpand.Expand(fmt, cb)
+
+	// did it work?
+	if err != nil {
+		return fmt
+	}
+
+	// yes it did :)
+	return retval
 }
 
 // Getenv returns the value of the variable named by the key.
@@ -119,6 +144,12 @@ func (e *Env) Getenv(key string) string {
 
 	// not found
 	return ""
+}
+
+// IsExporter returns true if this backing store holds variables that
+// should be exported to external programs
+func (e *Env) IsExporter() bool {
+	return e.isExporter
 }
 
 // Length returns the number of key/value pairs stored in the Env
@@ -150,6 +181,25 @@ func (e *Env) LookupEnv(key string) (string, bool) {
 
 	// not found
 	return "", false
+}
+
+// LookupHomeDir retrieves the given user's home directory, or false if
+// that cannot be found
+func (e *Env) LookupHomeDir(username string) (string, bool) {
+	var details *user.User
+	var err error
+
+	if username == "" {
+		details, err = user.Current()
+	} else {
+		details, err = user.Lookup(username)
+	}
+
+	if err != nil {
+		return "", false
+	}
+
+	return details.HomeDir, true
 }
 
 // MatchVarNames returns a list of variable names that start with the
