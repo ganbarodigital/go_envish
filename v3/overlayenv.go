@@ -187,3 +187,37 @@ func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
 
 	return details.HomeDir, true
 }
+
+// MatchVarNames returns a list of variable names that start with the
+// given prefix.
+//
+// This is very useful if you want to support `${!prefix*}` shell
+// expansion in your own code.
+func (e *OverlayEnv) MatchVarNames(prefix string) []string {
+	// our return value
+	retval := []string{}
+
+	// do we have a stack to work with?
+	if e == nil {
+		return retval
+	}
+
+	// let's go and find things
+	foundKeys := make(map[string]bool)
+	for _, env := range e.envs {
+		keys := env.MatchVarNames(prefix)
+		for _, key := range keys {
+			foundKeys[key] = true
+		}
+	}
+
+	for key := range foundKeys {
+		retval = append(retval, key)
+	}
+
+	// sort it
+	sort.Strings(retval)
+
+	// all done
+	return retval
+}

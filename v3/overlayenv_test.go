@@ -658,3 +658,101 @@ func TestOverlayEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	assert.False(t, ok)
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestOverlayEnvMatchVarNamesSearchesTheStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM2.1", "trout")
+	env2.Setenv("PARAM2.2", "haddock")
+
+	expectedResult := []string{
+		"PARAM1.1",
+		"PARAM1.2",
+		"PARAM2.1",
+		"PARAM2.2",
+	}
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.MatchVarNames("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvMatchVarNamesGivesPrecidenceToEarlierStackEntries(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1.1", "trout")
+	env2.Setenv("PARAM1.2", "haddock")
+
+	expectedResult := []string{
+		"PARAM1.1",
+		"PARAM1.2",
+	}
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.MatchVarNames("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvMatchVarNamesReturnsEmptyListIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := []string{}
+	var stack *OverlayEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.MatchVarNames("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvMatchVarNamesReturnsEmptyListIfEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := []string{}
+	stack := OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.MatchVarNames("PARAM")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
