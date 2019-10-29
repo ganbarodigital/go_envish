@@ -756,3 +756,102 @@ func TestOverlayEnvMatchVarNamesReturnsEmptyListIfEmptyStruct(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+func TestOverlayEnvSetenvUpdatesExistingEntriesInStackOrder(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1.1", "trout")
+	env2.Setenv("PARAM1.2", "haddock")
+
+	expectedResult1 := "there"
+	expectedResult2 := "haddock"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Setenv("PARAM1.2", expectedResult1)
+	actualResult1 := env1.Getenv("PARAM1.2")
+	actualResult2 := env2.Getenv("PARAM1.2")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult1, actualResult1)
+	assert.Equal(t, expectedResult2, actualResult2)
+}
+
+func TestOverlayEnvSetenvCreatesNewEntriesInFirstStackMember(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1.1", "hello")
+	env1.Setenv("PARAM1.2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1.1", "trout")
+	env2.Setenv("PARAM1.2", "haddock")
+
+	expectedResult := "there"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Setenv("PARAM1.3", expectedResult)
+	actualResult := env1.Getenv("PARAM1.3")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvSetenvReturnsErrorIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var stack *OverlayEnv = nil
+
+	expectedResult := "nil pointer to environment store passed to OverlayEnv.Setenv"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Setenv("PARAM1.3", "DOES NOT MATTER")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Error(t, actualResult)
+	assert.Equal(t, expectedResult, actualResult.Error())
+}
+
+func TestOverlayEnvSetenvReturnsErrorIfEmptyStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	stack := OverlayEnv{}
+
+	expectedResult := "overlay env is empty; OverlayEnv.Setenv"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Setenv("PARAM1.3", "DOES NOT MATTER")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Error(t, actualResult)
+	assert.Equal(t, expectedResult, actualResult.Error())
+}

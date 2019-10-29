@@ -221,3 +221,27 @@ func (e *OverlayEnv) MatchVarNames(prefix string) []string {
 	// all done
 	return retval
 }
+
+// Setenv sets the value of the variable named by the key.
+func (e *OverlayEnv) Setenv(key, value string) error {
+	// do we have a stack?
+	if e == nil {
+		return ErrNilPointer{"OverlayEnv.Setenv"}
+	}
+
+	// do we have any environments in the stack?
+	if len(e.envs) == 0 {
+		return ErrEmptyOverlayEnv{"OverlayEnv.Setenv"}
+	}
+
+	// are we updating an existing variable?
+	for _, env := range e.envs {
+		_, ok := env.LookupEnv(key)
+		if ok {
+			return env.Setenv(key, value)
+		}
+	}
+
+	// nope, it's a brand new variable
+	return e.envs[0].Setenv(key, value)
+}
