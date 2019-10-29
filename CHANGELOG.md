@@ -6,6 +6,10 @@
 
 * `Env.Expand()` now uses ShellExpand, supports a lot more string expansion features than before
 * `Env.LookupHomeDir()` added
+* `Reader` interface added
+* `Writer` interface added
+* `ReaderWriter` interface added
+* `Expander` interface added
 
 ### Deps
 
