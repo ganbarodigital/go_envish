@@ -35,14 +35,14 @@
 
 package envish
 
-// StackedEnvs works on a collection of variable backing stores
-type StackedEnvs struct {
+// OverlayEnv works on a collection of variable backing stores
+type OverlayEnv struct {
 	envs []Expander
 }
 
-// NewStackedEnvs creates an empty stack of environment stores
-func NewStackedEnvs(envs ...Expander) *StackedEnvs {
-	retval := StackedEnvs{
+// NewOverlayEnv creates an empty stack of environment stores
+func NewOverlayEnv(envs ...Expander) *OverlayEnv {
+	retval := OverlayEnv{
 		envs: envs,
 	}
 
@@ -51,7 +51,7 @@ func NewStackedEnvs(envs ...Expander) *StackedEnvs {
 }
 
 // GetEnvByID returns the environment you want to work with
-func (e *StackedEnvs) GetEnvByID(id int) (Expander, bool) {
+func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool) {
 	// do we have a stack to work with?
 	if e == nil {
 		return nil, false

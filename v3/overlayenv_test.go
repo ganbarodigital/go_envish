@@ -41,7 +41,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewStackedEnvsReturnsStackOfEnvironments(t *testing.T) {
+func TestNewOverlayEnvReturnsStackOfEnvironments(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
@@ -51,7 +51,7 @@ func TestNewStackedEnvsReturnsStackOfEnvironments(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	stack := NewStackedEnvs(localEnv, progEnv)
+	stack := NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -60,14 +60,14 @@ func TestNewStackedEnvsReturnsStackOfEnvironments(t *testing.T) {
 	assert.Same(t, progEnv, stack.envs[1])
 }
 
-func TestStackedEnvsGetEnvByIDReturnsFromTheStack(t *testing.T) {
+func TestOverlayEnvGetEnvByIDReturnsFromTheStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
 	localEnv := NewLocalEnv()
 	progEnv := NewProgramEnv()
 
-	stack := NewStackedEnvs(localEnv, progEnv)
+	stack := NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -84,14 +84,14 @@ func TestStackedEnvsGetEnvByIDReturnsFromTheStack(t *testing.T) {
 	assert.Same(t, progEnv, stack1)
 }
 
-func TestStackedEnvsGetEnvByIDReturnsNilIfIndexTooLarge(t *testing.T) {
+func TestOverlayEnvGetEnvByIDReturnsNilIfIndexTooLarge(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
 	localEnv := NewLocalEnv()
 	progEnv := NewProgramEnv()
 
-	stack := NewStackedEnvs(localEnv, progEnv)
+	stack := NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -105,14 +105,14 @@ func TestStackedEnvsGetEnvByIDReturnsNilIfIndexTooLarge(t *testing.T) {
 	assert.Nil(t, stack2)
 }
 
-func TestStackedEnvsGetEnvByIDReturnsNilIfIndexTooSmall(t *testing.T) {
+func TestOverlayEnvGetEnvByIDReturnsNilIfIndexTooSmall(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
 	localEnv := NewLocalEnv()
 	progEnv := NewProgramEnv()
 
-	stack := NewStackedEnvs(localEnv, progEnv)
+	stack := NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -126,11 +126,11 @@ func TestStackedEnvsGetEnvByIDReturnsNilIfIndexTooSmall(t *testing.T) {
 	assert.Nil(t, stack2)
 }
 
-func TestStackedEnvsGetEnvByIDReturnsCopesWithNilPointer(t *testing.T) {
+func TestOverlayEnvGetEnvByIDReturnsCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var stack *StackedEnvs = nil
+	var stack *OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -144,11 +144,11 @@ func TestStackedEnvsGetEnvByIDReturnsCopesWithNilPointer(t *testing.T) {
 	assert.Nil(t, stack2)
 }
 
-func TestStackedEnvsGetEnvByIDReturnsCopesWithEmptyStruct(t *testing.T) {
+func TestOverlayEnvGetEnvByIDReturnsCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	stack := StackedEnvs{}
+	stack := OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
