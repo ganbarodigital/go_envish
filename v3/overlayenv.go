@@ -65,3 +65,18 @@ func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool) {
 	// yes, we do
 	return e.envs[id], true
 }
+
+// Clearenv deletes all entries
+func (e *OverlayEnv) Clearenv() {
+	// do we have a stack to work with?
+	if e == nil {
+		return
+	}
+
+	// wipe them out ... all of them ...
+	for i := range e.envs {
+		e.envs[i].Clearenv()
+	}
+
+	// all done
+}

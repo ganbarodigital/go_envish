@@ -36,6 +36,7 @@
 package envish
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -160,4 +161,69 @@ func TestOverlayEnvGetEnvByIDReturnsCopesWithEmptyStruct(t *testing.T) {
 
 	assert.False(t, ok2)
 	assert.Nil(t, stack2)
+}
+
+func TestOverlayEnvClearenvEmptiesAllEnvironments(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	stack := NewOverlayEnv(localEnv, progEnv)
+
+	// we'll need to put the program's environment back afterwards!
+	origEnviron := os.Environ()
+	defer progEnv.RestoreEnvironment(origEnviron)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	localEnviron := localEnv.Environ()
+	progEnviron := progEnv.Environ()
+
+	assert.Empty(t, localEnviron)
+	assert.Empty(t, progEnviron)
+}
+
+func TestOverlayEnvClearenvDoesNothingIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var stack *OverlayEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	osEnviron := os.Environ()
+
+	assert.NotEmpty(t, osEnviron)
+}
+
+func TestOverlayEnvClearenvDoesNothingIfEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	stack := OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	osEnviron := os.Environ()
+
+	assert.NotEmpty(t, osEnviron)
 }
