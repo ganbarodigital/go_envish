@@ -59,12 +59,12 @@ func TestErrEmptyKey(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestErrEmptyStack(t *testing.T) {
+func TestErrEmptyOverlayEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrEmptyEnvStack{"TestErrEmptyStack"}
-	expectedResult := "env stack is empty; TestErrEmptyStack"
+	testData := ErrEmptyOverlayEnv{"TestErrEmptyOverlayEnv"}
+	expectedResult := "overlay env is empty; TestErrEmptyOverlayEnv"
 
 	// ----------------------------------------------------------------
 	// perform the change

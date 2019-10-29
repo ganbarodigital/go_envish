@@ -45,13 +45,13 @@ func (e ErrEmptyKey) Error() string {
 	return "zero-length key, or key only contains whitespace"
 }
 
-// ErrEmptyEnvStack is returned whenever you call a method on an empty EnvStack
-type ErrEmptyEnvStack struct {
+// ErrEmptyOverlayEnv is returned whenever you call a method on an empty EnvStack
+type ErrEmptyOverlayEnv struct {
 	method string
 }
 
-func (e ErrEmptyEnvStack) Error() string {
-	return fmt.Sprintf("env stack is empty; %s", e.method)
+func (e ErrEmptyOverlayEnv) Error() string {
+	return fmt.Sprintf("overlay env is empty; %s", e.method)
 }
 
 // ErrNilPointer is returned whenever you call a method on the Env struct

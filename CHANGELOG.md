@@ -11,7 +11,7 @@
 
 * Added `ProgramEnv` and its methods
 * Added `NewProgramEnv()`
-* Added `ErrEmptyEnvStack` error
+* Added `ErrEmptyOverlayEnv` error
 
 ## v2.3.0
 
