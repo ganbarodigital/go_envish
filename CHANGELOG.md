@@ -2,6 +2,10 @@
 
 ## develop
 
+## v3.0.1
+
+Released Wednesday, 30th October 2019.
+
 ### Fix
 
 * `OverlayEnv.IsExporter()` added, for interface compatibility
