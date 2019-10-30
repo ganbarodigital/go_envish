@@ -50,17 +50,16 @@ cmd.Start()
   - [LocalEnv.Unsetenv()](#localenvunsetenv)
 - [ProgramEnv](#programenv)
   - [NewProgramEnv()](#newprogramenv)
-  - [Clearenv()](#clearenv)
-  - [Environ()](#environ)
-  - [Expand()](#expand)
-  - [Getenv()](#getenv)
-  - [IsExporter()](#isexporter)
-  - [Length()](#length)
-  - [LookupEnv()](#lookupenv)
-  - [LookupHomeDir()](#lookuphomedir)
-  - [MatchVarNames()](#matchvarnames)
-  - [Setenv()](#setenv)
-  - [Unsetenv()](#unsetenv)
+  - [ProgramEnv.Clearenv()](#programenvclearenv)
+  - [ProgramEnv.Environ()](#programenvenviron)
+  - [ProgramEnv.Expand()](#programenvexpand)
+  - [ProgramEnv.Getenv()](#programenvgetenv)
+  - [ProgramEnv.IsExporter()](#programenvisexporter)
+  - [ProgramEnv.LookupEnv()](#programenvlookupenv)
+  - [ProgramEnv.LookupHomeDir()](#programenvlookuphomedir)
+  - [ProgramEnv.MatchVarNames()](#programenvmatchvarnames)
+  - [ProgramEnv.Setenv()](#programenvsetenv)
+  - [ProgramEnv.Unsetenv()](#programenvunsetenv)
 
 ## Why Use Envish?
 
@@ -459,6 +458,10 @@ ProgramEnv gives you the same API as [LocalEnv](#localenv), only it works direct
 
 ### NewProgramEnv()
 
+```golang
+func NewProgramEnv() *ProgramEnv
+```
+
 `NewProgramEnv` creates an empty environment store:
 
 ```golang
@@ -467,7 +470,11 @@ progEnv := envish.NewProgramEnv()
 
 It returns a `envish.ProgramEnv()` struct.  The struct does not export any public fields.
 
-### Clearenv()
+### ProgramEnv.Clearenv()
+
+```golang
+func (e *ProgramEnv) Clearenv()
+```
 
 `Clearenv()` deletes all entries from your program's environment. Use with caution.
 
@@ -476,7 +483,11 @@ progEnv := envish.NewProgramEnv()
 progEnv.Clearenv()
 ```
 
-### Environ()
+### ProgramEnv.Environ()
+
+```golang
+func (e *ProgramEnv) Environ() []string
+```
 
 `Environ()` returns a copy of all entries in the form `key=value`. This is compatible with any Golang standard library, such as `exec`.
 
@@ -488,7 +499,11 @@ cmd := exec.Command(...)
 cmd.Env = progEnv.Environ()
 ```
 
-### Expand()
+### ProgramEnv.Expand()
+
+```golang
+func (e *ProgramEnv) Expand(fmt string) string
+```
 
 `Expand()` will replace `${key}` and `$key` entries in a format string.
 
@@ -501,7 +516,11 @@ fmt.Printf(progEnv.Expand("HOME is ${HOME}\n"))
 
 `Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
 
-### Getenv()
+### ProgramEnv.Getenv()
+
+```golang
+func (e *ProgramEnv) Getenv(key string) string
+```
 
 `Getenv()` returns the value of the variable named by the key. If the key is not found, an empty string is returned.
 
@@ -514,7 +533,11 @@ progEnv := envish.NewProgramEnv()
 home := progEnv.Getenv("HOME")
 ```
 
-### IsExporter()
+### ProgramEnv.IsExporter()
+
+```golang
+func (e *ProgramEnv) IsExporter() bool
+```
 
 `IsExporter()` always returns `true`.
 
@@ -524,18 +547,11 @@ progEnv := envish.NewProgramEnv()
 exporting := progEnv.IsExporter()
 ```
 
-### Length()
-
-`Length()` returns the number of key/value pairs stored in your program's environment.
+### ProgramEnv.LookupEnv()
 
 ```golang
-env := envish.NewProgramEnv()
-
-// find out how many variables it contains
-fmt.Printf("environment has %d entries\n", env.Length())
+func (e *ProgramEnv) LookupEnv(key string) (string, bool)
 ```
-
-### LookupEnv()
 
 `LookupEnv()` returns the value of the variable named by the key.
 
@@ -548,7 +564,11 @@ progEnv := envish.NewProgramEnv()
 value, ok := progEnv.LookupEnv("HOME")
 ```
 
-### LookupHomeDir()
+### ProgramEnv.LookupHomeDir()
+
+```golang
+func (e *ProgramEnv) LookupHomeDir(username string) (string, bool) {
+```
 
 `LookupHomeDir()` returns the full path to the given user's home directory, or `false` if it cannot be retrieved for any reason.
 
@@ -566,7 +586,11 @@ homeDir, ok := progEnv.LookupHomeDir("")
 // homeDir should be same as `os.UserHomeDir()`
 ```
 
-### MatchVarNames()
+### ProgramEnv.MatchVarNames()
+
+```golang
+func (e *ProgramEnv) MatchVarNames(prefix string) []string
+```
 
 `MatchVarNames()` returns a list of keys that begin with the given prefix.
 
@@ -577,7 +601,11 @@ progEnv := envish.NewProgramEnv()
 keys := progEnv.MatchVarNames("ANSIBLE_")
 ```
 
-### Setenv()
+### ProgramEnv.Setenv()
+
+```golang
+func (e *ProgramEnv) Setenv(key, value string) error
+```
 
 `Setenv()` sets the value of the variable named by the key. This is published into your program's environment immediately.
 
@@ -590,11 +618,13 @@ progEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 
 `Setenv` will return an error if something went wrong.
 
-### Unsetenv()
+### ProgramEnv.Unsetenv()
 
-`Unsetenv()` deletes the variable from your program's environment.
+```golang
+func (e *ProgramEnv) Unsetenv(key string)
+```
 
-`Unsetenv()` does not return an error if the key is not found.
+`Unsetenv()` deletes the variable from your program's environment, if it exists.
 
 ```golang
 progEnv := envish.NewProgramEnv()
