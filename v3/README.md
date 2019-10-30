@@ -60,6 +60,18 @@ cmd.Start()
   - [ProgramEnv.MatchVarNames()](#programenvmatchvarnames)
   - [ProgramEnv.Setenv()](#programenvsetenv)
   - [ProgramEnv.Unsetenv()](#programenvunsetenv)
+- [OverlayEnv](#overlayenv)
+  - [NewOverlayEnv()](#newoverlayenv)
+  - [OverlayEnv.GetEnvByID()](#overlayenvgetenvbyid)
+  - [OverlayEnv.Clearenv()](#overlayenvclearenv)
+  - [OverlayEnv.Environ()](#overlayenvenviron)
+  - [OverlayEnv.Expand()](#overlayenvexpand)
+  - [OverlayEnv.Getenv()](#overlayenvgetenv)
+  - [OverlayEnv.LookupEnv()](#overlayenvlookupenv)
+  - [OverlayEnv.LookupHomeDir()](#overlayenvlookuphomedir)
+  - [MatchVarNames](#matchvarnames)
+  - [OverlayEnv.Setenv()](#overlayenvsetenv)
+  - [OverlayEnv.Unsetenv()](#overlayenvunsetenv)
 
 ## Why Use Envish?
 
@@ -632,3 +644,333 @@ progEnv := envish.NewProgramEnv()
 // delete an entry from your program's environment
 progEnv.Unsetenv("HOME")
 ```
+
+## OverlayEnv
+
+Use an `OverlayEnv` to combine one (or more) [`LocalEnv`](#localenv) and a single [`ProgramEnv`](#programenv) into a single logical environment.
+
+We do this in [Scriptish](https://github.com/ganbarodigital/go_scriptish) to provide local variable support.
+
+### NewOverlayEnv()
+
+```golang
+func NewOverlayEnv(envs ...Expander) *OverlayEnv
+```
+
+Call `NewOverlayEnv()` to build a single logical environment from a set of environments.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+```
+
+`NewOverlayEnv()` returns a pointer to an `OverlayEnv` struct. You can use the methods of the `OverlayStruct` to read from and write to each of these environments.
+
+The order of the arguments to `NewOverlayEnv()` matters. `OverlayEnv`'s methods will read from / write to the underlying environments in the order you've put them in, from left to right.
+
+### OverlayEnv.GetEnvByID()
+
+```golang
+func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool)
+```
+
+`GetEnvByID()` returns the requested environment from the `OverlayEnv`. ID `0` is the first environment you passed into `NewOverlayEnv()`, ID `1` is the second environment, and so on.
+
+If you request an ID that the `OverlayEnv` does not have, it returns `nil, false`.
+
+This is handy if you don't want to keep separate references to the environments you've combined into a single overlay:
+
+```golang
+// the IDs of each environment in the overlay
+const(
+    LocalVars = iota
+    ProgramVars
+    ProgramEnv
+)
+
+// createEnvironment() is the kind of code that you'd normally call
+// during your program's bootstrap sequence
+func createEnvironment() envish.Expander {
+    localVars := envish.NewLocalEnv()
+    progVars := envish.NewLocalEnv(SetAsExporter)
+    progEnv := envish.NewProgramEnv()
+
+    // combine them
+    return envish.NewOverlayEnv(localVars, progVars, progEnv)
+}
+
+// setLocalVar() sets a local variable
+func setLocalVar(env envish.Expander, key, value string) error {
+    // NOTE how we use the constant defined earlier to find the right
+    // environment to set this variable in
+    localVars := env.GetEnvByID(LocalVars)
+
+    // this will now be available to read and update in the `env` elsewhere
+    return localVars.Setenv(key, value)
+}
+```
+
+### OverlayEnv.Clearenv()
+
+```golang
+func (e *OverlayEnv) Clearenv()
+```
+
+`Clearenv()` deletes all variables __in every environment in the overlay env__. If your overlay env includes a [`ProgramEnv`](#programenv), this _will_ delete all of your program's environment variables.
+
+Use with caution!
+
+### OverlayEnv.Environ()
+
+```golang
+func (e *OverlayEnv) Environ() []string
+```
+
+`Environ()` returns a copy of all of the variables in your `OverlayEnv` in the form `key=value`. This format is compatible with Golang's built-in packages.
+
+When it builds the list, it follows these rules:
+
+* it searches the environments in the order you provided them to [`NewOverlayEnv()`](#newoverlayenv)
+* it only includes variables from environments where `IsExporter()` returns `true`
+* if the same variable is set in multiple environments, it uses the first value it finds
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// export their variables
+//
+// it will pick up variables from:
+//
+// - progVars (because it was called with the SetAsExporter functional option)
+// - progEnv (because ProgramEnv.IsExporter() ALWAYS returns `true`)
+//
+// if a variable is set in both `progVars` and `progEnv`, it will use the
+// value from `progVars`
+environ := env.Environ()
+
+// pass it into run a child process
+cmd := exec.Command(...)
+cmd.Env = environ
+cmd.Start()
+```
+
+### OverlayEnv.Expand()
+
+```golang
+func (e *OverlayEnv) Expand(fmt string) string
+```
+
+`Expand()` will replace `${key}` and `$key` entries in a format string.
+
+* it uses the overlay env's [`LookupEnv()`](#overlayenvlookupenv) to find the values of variables
+* it uses the overlay env's [`Setenv()`](#overlayenvsetenv) to set the values of variables
+* it uses the overlay env's [`MatchVarNames()`](#overlayenvmatchvarnames) to expand variable name prefixes
+* it uses the overlay env's [`LookupHomeDir()`](#overlayenvlookuphomedir) to expand `~` (tilde)
+
+Hopefully, we've got the logic right, and you'll find that your expansions just work the way you'd naturally expect.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// show what we have
+fmt.Printf(env.Expand("HOME is ${HOME}\n"))
+```
+
+`Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
+
+### OverlayEnv.Getenv()
+
+```golang
+func (e *OverlayEnv) Getenv(key string) string
+```
+
+`Getenv()` returns the value of the given variable. If the variable does not exist, it returns `""` (empty string).
+
+* it searches the environments in the order you provided them to [`NewOverlayEnv()`](#newoverlayenv)
+* if the same variable is set in multiple environments, it uses the first value it finds
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// show what we have
+fmt.Printf("HOME is %s\n", env.Getenv("HOME"))
+```
+
+### OverlayEnv.LookupEnv()
+
+```golang
+func (e *OverlayEnv) LookupEnv(key string) (string, bool)
+```
+
+`LookupEnv()` returns the value of the given variable. If the variable does not exist, it returns `"", false`.
+
+* it searches the environments in the order you provided them to [`NewOverlayEnv()`](#newoverlayenv)
+* if the same variable is set in multiple environments, it uses the first value it finds
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// `home` will hold whatever value we could find
+// `ok` will be `true` if the variable exists in any of the environments
+home, ok := env.LookupEnv("HOME")
+```
+
+### OverlayEnv.LookupHomeDir()
+
+```golang
+func (e *OverlayEnv) LookupHomeDir(username string) (string, bool)
+```
+
+`LookupHomeDir()` returns the full path to the given user's home directory, or `false` if it cannot be retrieved for any reason.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// find a user's home directory
+homeDir, ok := env.LookupHomeDir("root")
+```
+
+If you pass an empty string into `LookupHomeDir()`, it will look up the current user's home directory.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// find the current user's home directory
+homeDir, ok := env.LookupHomeDir("")
+
+// homeDir should be same as `os.UserHomeDir()`
+```
+
+This method doesn't call any methods on any of the environments in your overlay env. We might revisit that in a future release.
+
+### MatchVarNames
+
+```golang
+func (e *OverlayEnv) MatchVarNames(prefix string) []string
+```
+
+`MatchVarNames()` returns a list of variable names that start with the given prefix.
+
+It's a feature needed for the `${!prefix*}` string expansion syntax.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// find all ANSIBLE variables
+vars := env.MatchVarNames("ANSIBLE_")
+```
+
+### OverlayEnv.Setenv()
+
+```golang
+func (e *OverlayEnv) Setenv(key, value string) error
+```
+
+`Setenv()` creates a variable (if it doesn't already exist) or updates its value (if it does exist).
+
+* it searches the environments in the order you provided them to [`NewOverlayEnv()`](#newoverlayenv)
+* if the same variable is set in multiple environments, it updates the first variable it finds
+* if the variable does not exist, it is always created in the first environment you passed into [`NewOverlayEnv()`](#newoverlayenv)
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// some example data to show how Setenv() works
+localVars.Setenv("LOCAL", "100")
+progVars.Setenv("PROG", "200")
+progEnv.Setenv("ENV", "300")
+
+// this will update the variable "PROG" in the `progVars` environment,
+// because it already exists
+env.Setenv("PROG", "250")
+
+// this will create the variable "NEWVAR" in the `localVars` environment,
+// because:
+//
+// a) NEWVAR does not yet exist, and
+// b) `localVars` was the first environment passed into `NewOverlayEnv()`
+env.Setenv("NEWVAR", "101")
+```
+
+### OverlayEnv.Unsetenv()
+
+```golang
+func (e *OverlayEnv) Unsetenv(key string)
+```
+
+`Unsetenv()` will delete the given variable from __all environments__ in the overlay env.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// some example data to show how Unsetenv() works
+localVars.Setenv("VAR", "100")
+progVars.Setenv("VAR", "200")
+progEnv.Setenv("VAR", "300")
+
+// `value` is "100"
+value := env.Getenv("VAR")
+
+// delete it
+env.Unsetenv("VAR")
+
+// `ok1` is false; "VAR" has been deleted from here
+_, ok1 := localVars.LookupEnv("VAR")
+
+// `ok2` is also false; "VAR" has been deleted from here as well
+_, ok2 := progVars.LookupEnv("VAR")
+
+// `ok3` is also false; "VAR" has been deleted from here as well
+_, ok3 := progEnv.LookupEnv("VAR")
+```
+
+Why do we delete the variable from all environments? It would be very confusing if [`Getenv()`](#overlayenvgetenv) et al continued to return values after you've tried to delete a variable.
