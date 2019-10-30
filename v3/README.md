@@ -205,7 +205,7 @@ type Expander interface {
 
 ## LocalEnv
 
-`LocalEnv` emulates an environment and environment variables. It never reads from, or writes to, your program's environment.
+`LocalEnv` is what we call _a variable backing store_. It emulates an environment and environment variables. It never reads from, or writes to, your program's environment.
 
 ### NewLocalEnv()
 
@@ -229,6 +229,12 @@ You can pass [functional options](https://dave.cheney.net/2014/10/17/functional-
 
 ```golang
 localEnv := envish.NewLocalEnv(CopyProgramEnv)
+```
+
+`SetAsExporter` is a functional option that will tell the `OverlayEnv` to include your `LocalEnv`'s contents in any call to its [`Environ()`](#overlayenvenviron) function.
+
+```golang
+localEnv := envish.NewLocalEnv(SetAsExporter)
 ```
 
 ### LocalEnv.Clearenv()
