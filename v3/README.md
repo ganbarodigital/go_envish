@@ -37,6 +37,19 @@ cmd.Start()
 - [LocalEnv](#localenv)
   - [NewLocalEnv()](#newlocalenv)
   - [NewLocalEnv() With Functional Options](#newlocalenv-with-functional-options)
+  - [LocalEnv.Clearenv()](#localenvclearenv)
+  - [LocalEnv.Environ()](#localenvenviron)
+  - [LocalEnv.Expand()](#localenvexpand)
+  - [LocalEnv.Getenv()](#localenvgetenv)
+  - [LocalEnv.IsExporter()](#localenvisexporter)
+  - [LocalEnv.Length()](#localenvlength)
+  - [LocalEnv.LookupEnv()](#localenvlookupenv)
+  - [LocalEnv.LookupHomeDir()](#localenvlookuphomedir)
+  - [LocalEnv.MatchVarNames()](#localenvmatchvarnames)
+  - [LocalEnv.Setenv()](#localenvsetenv)
+  - [LocalEnv.Unsetenv()](#localenvunsetenv)
+- [ProgramEnv](#programenv)
+  - [NewProgramEnv()](#newprogramenv)
   - [Clearenv()](#clearenv)
   - [Environ()](#environ)
   - [Expand()](#expand)
@@ -48,19 +61,6 @@ cmd.Start()
   - [MatchVarNames()](#matchvarnames)
   - [Setenv()](#setenv)
   - [Unsetenv()](#unsetenv)
-- [ProgramEnv](#programenv)
-  - [NewProgramEnv()](#newprogramenv)
-  - [Clearenv()](#clearenv-1)
-  - [Environ()](#environ-1)
-  - [Expand()](#expand-1)
-  - [Getenv()](#getenv-1)
-  - [IsExporter()](#isexporter-1)
-  - [Length()](#length-1)
-  - [LookupEnv()](#lookupenv-1)
-  - [LookupHomeDir()](#lookuphomedir-1)
-  - [MatchVarNames()](#matchvarnames-1)
-  - [Setenv()](#setenv-1)
-  - [Unsetenv()](#unsetenv-1)
 
 ## Why Use Envish?
 
@@ -205,9 +205,13 @@ type Expander interface {
 
 ## LocalEnv
 
-Envish provides an API that's compatible with Golang's standard `os` environment functions. The only difference is that they work on the key/value pairs stored in the environment store, rather than on your program's environment.
+`LocalEnv` emulates an environment and environment variables. It never reads from, or writes to, your program's environment.
 
 ### NewLocalEnv()
+
+```golang
+func NewLocalEnv(options ...func(*LocalEnv)) *LocalEnv
+```
 
 `NewLocalEnv` creates an empty environment store:
 
@@ -227,7 +231,11 @@ You can pass [functional options](https://dave.cheney.net/2014/10/17/functional-
 localEnv := envish.NewLocalEnv(CopyProgramEnv)
 ```
 
-### Clearenv()
+### LocalEnv.Clearenv()
+
+```golang
+func (e *LocalEnv) Clearenv()
+```
 
 `Clearenv()` deletes all entries from the given environment store. The program's environment remains unchanged.
 
@@ -239,7 +247,11 @@ localEnv := envish.NewLocalEnv(CopyProgramEnv)
 localEnv.Clearenv()
 ```
 
-### Environ()
+### LocalEnv.Environ()
+
+```golang
+func (e *LocalEnv) Environ() []string
+```
 
 `Environ()` returns a copy of all entries in the form `key=value`. This is compatible with any Golang standard library, such as `exec`.
 
@@ -252,7 +264,11 @@ cmd := exec.Command(...)
 cmd.Env = localEnv.Environ()
 ```
 
-### Expand()
+### LocalEnv.Expand()
+
+```golang
+func (e *LocalEnv) Expand(fmt string) string
+```
 
 `Expand()` will replace `${key}` and `$key` entries in a format string.
 
@@ -266,11 +282,15 @@ fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 
 `Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
 
-### Getenv()
+### LocalEnv.Getenv()
+
+```golang
+func (e *LocalEnv) Getenv(key string) string
+```
 
 `Getenv()` returns the value of the variable named by the key. If the key is not found, an empty string is returned.
 
-If you want to find out if a key exists, use [`LookupEnv()`](#lookupenv) instead.
+If you want to find out if a key exists, use [`LocalEnv.LookupEnv()`](#localenvlookupenv) instead.
 
 ```golang
 // create an environment store
@@ -280,7 +300,11 @@ localEnv := envish.NewLocalEnv()
 home := localEnv.Getenv("HOME")
 ```
 
-### IsExporter()
+### LocalEnv.IsExporter()
+
+```golang
+func (e *LocalEnv) IsExporter() bool
+```
 
 `IsExporter()` returns true if the environment store's contents should be exported to external programs.
 
@@ -302,7 +326,11 @@ localEnv := envish.NewLocalEnv(envish.SetAsExporter)
 exporting := localEnv.IsExporter()
 ```
 
-### Length()
+### LocalEnv.Length()
+
+```golang
+func (e *LocalEnv) Length() int
+```
 
 `Length()` returns the number of key/value pairs stored in the environment store.
 
@@ -314,7 +342,11 @@ localEnv := envish.NewLocalEnv()
 fmt.Printf("environment has %d entries\n", localEnv.Length())
 ```
 
-### LookupEnv()
+### LocalEnv.LookupEnv()
+
+```golang
+func (e *LocalEnv) LookupEnv(key string) (string, bool)
+```
 
 `LookupEnv()` returns the value of the variable named by the key.
 
@@ -328,7 +360,11 @@ localEnv := envish.NewLocalEnv()
 value, ok := localEnv.LookupEnv("HOME")
 ```
 
-### LookupHomeDir()
+### LocalEnv.LookupHomeDir()
+
+```golang
+func (e *LocalEnv) LookupHomeDir(username string) (string, bool)
+```
 
 `LookupHomeDir()` returns the full path to the given user's home directory, or `false` if it cannot be retrieved for any reason.
 
@@ -346,7 +382,11 @@ homeDir, ok := localEnv.LookupHomeDir("")
 // homeDir should be same as `os.UserHomeDir()`
 ```
 
-### MatchVarNames()
+### LocalEnv.MatchVarNames()
+
+```golang
+func (e *LocalEnv) MatchVarNames(prefix string) []string
+```
 
 `MatchVarNames()` returns a list of keys that begin with the given prefix.
 
@@ -358,7 +398,11 @@ localEnv := envish.NewLocalEnv()
 keys := localEnv.MatchVarNames("ANSIBLE_")
 ```
 
-### Setenv()
+### LocalEnv.Setenv()
+
+```golang
+func (e *LocalEnv) Setenv(key, value string) error
+```
 
 `Setenv()` sets the value of the variable named by the key. The program's environment remains unchanged.
 
@@ -385,7 +429,11 @@ err := localEnv.Setenv("valid-key", "valid-value")
 
 Other errors may be added in future releases.
 
-### Unsetenv()
+### LocalEnv.Unsetenv()
+
+```golang
+func (e *LocalEnv) Unsetenv(key string)
+```
 
 `Unsetenv()` deletes the variable named by the key. The program's environment remains completely unchanged.
 
