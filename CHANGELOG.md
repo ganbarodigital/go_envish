@@ -2,6 +2,27 @@
 
 ## develop
 
+## v3.0.0
+
+Released Wednesday, 30th October 2019.
+
+### Backwards-Compatibility Breaks
+
+* `envish.Env` is now `envish.LocalEnv`
+* `envish.NewEnv` is now `envish.NewLocalEnv`
+
+### New
+
+* Added `ProgramEnv` and its methods
+* Added `NewProgramEnv()`
+* Added `ErrEmptyOverlayEnv` error
+* Added `OverlayEnv` and its methods
+* Added `NewOverlayEnv()`
+
+## v2.3.0
+
+Released Tuesday, 29th October 2019.
+
 ### New
 
 * `Env.Expand()` now uses ShellExpand, supports a lot more string expansion features than before
@@ -61,7 +82,7 @@ Other B/C breaks:
 
 ### New
 
-* Added NewEnv option: `envish.CopyProgramEnv` 
+* Added NewEnv option: `envish.CopyProgramEnv`
 
 ### Fixes
 

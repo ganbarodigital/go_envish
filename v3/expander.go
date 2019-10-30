@@ -33,12 +33,17 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package envish
 
-// ErrEmptyKey is returned whenever we're given a key that is zero-length
-// or only contains whitespace
-type ErrEmptyKey struct{}
+// Expander is the interface that wraps a variable backing store that
+// also supports string expansion
+type Expander interface {
+	ReaderWriter
 
-func (e ErrEmptyKey) Error() string {
-	return "zero-length key, or key only contains whitespace"
+	// Expand replaces ${var} or $var in the input string.
+	Expand(fmt string) string
+
+	// LookupHomeDir retrieves the given user's home directory, or false if
+	// that cannot be found
+	LookupHomeDir(username string) (string, bool)
 }

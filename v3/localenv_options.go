@@ -35,33 +35,8 @@
 
 package envish
 
-import (
-	"os"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
-)
-
-func TestCopyProgramEnvCopiesTheProgramsEnvironmentIntoTheStore(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
-
-	os.Setenv(testKey, expectedResult)
-
-	// clean up after ourselves
-	defer os.Unsetenv(testKey)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env := NewEnv(CopyProgramEnv)
-	actualResult := env.Getenv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
+// SetAsExporter sets a flag so that the EnvStack will include its contents
+// when building an environ to export to Golang's exec package.
+func SetAsExporter(e *LocalEnv) {
+	e.isExporter = true
 }

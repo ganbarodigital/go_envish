@@ -35,12 +35,9 @@
 
 package envish
 
-import "os"
-
-// CopyProgramEnv copies your program's environment into the given
-// environment store.
-//
-// It replaces any existing variables in the environment store.
-func CopyProgramEnv(e *Env) {
-	e.pairs = os.Environ()
+// ReaderWriter is the interface that groups the basic Read and Write methods
+// for a variable backing store
+type ReaderWriter interface {
+	Reader
+	Writer
 }

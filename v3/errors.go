@@ -35,9 +35,31 @@
 
 package envish
 
-// ReadWriter is the interface that groups the basic Read and Write methods
-// for a variable backing store
-type ReadWriter interface {
-	Reader
-	Writer
+import "fmt"
+
+// ErrEmptyKey is returned whenever we're given a key that is zero-length
+// or only contains whitespace
+type ErrEmptyKey struct{}
+
+func (e ErrEmptyKey) Error() string {
+	return "zero-length key, or key only contains whitespace"
+}
+
+// ErrEmptyOverlayEnv is returned whenever you call a method on an empty EnvStack
+type ErrEmptyOverlayEnv struct {
+	method string
+}
+
+func (e ErrEmptyOverlayEnv) Error() string {
+	return fmt.Sprintf("overlay env is empty; %s", e.method)
+}
+
+// ErrNilPointer is returned whenever you call a method on the Env struct
+// with a nil pointer
+type ErrNilPointer struct {
+	method string
+}
+
+func (e ErrNilPointer) Error() string {
+	return fmt.Sprintf("nil pointer to environment store passed to %s", e.method)
 }

@@ -36,40 +36,29 @@
 package envish
 
 import (
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestErrEmptyKey(t *testing.T) {
+func TestCopyProgramEnvCopiesTheProgramsEnvironmentIntoTheStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrEmptyKey{}
-	expectedResult := "zero-length key, or key only contains whitespace"
+	testKey := "TestNewEnv"
+	expectedResult := "this is my value"
+
+	os.Setenv(testKey, expectedResult)
+
+	// clean up after ourselves
+	defer os.Unsetenv(testKey)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := testData.Error()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestErrNilPointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testData := ErrNilPointer{"TestErrNilPointer"}
-	expectedResult := "nil pointer to environment store passed to TestErrNilPointer"
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := testData.Error()
+	env := NewLocalEnv(CopyProgramEnv)
+	actualResult := env.Getenv(testKey)
 
 	// ----------------------------------------------------------------
 	// test the results

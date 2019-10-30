@@ -33,167 +33,39 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package envish
 
 import (
 	"os"
-	"strings"
+	"os/user"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewEnvReturnsACopyOfTheProgramsEnvironment(t *testing.T) {
+func TestNewProgramEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
-
-	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
-
-	os.Setenv(testKey, expectedResult)
-
-	// clean up after ourselves
-	defer os.Unsetenv(testKey)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env := NewEnv()
-	actualResult := env.Getenv(testKey)
+	env := NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, actualResult)
+	assert.NotNil(t, env)
 }
 
-func TestNewEnvRunsAnySuppliedOptionFunctions(t *testing.T) {
+func TestProgramEnvClearenvEmptiesYourProgramsEnvironment(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
+	env := NewProgramEnv()
 
-	assert.Empty(t, os.Getenv(testKey))
-
-	op := func(e *Env) {
-		e.Setenv(testKey, expectedResult)
-	}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env := NewEnv(op)
-	actualResult := env.Getenv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
-
-	os.Setenv(testKey, expectedResult)
-
-	// clean up after ourselves
-	defer os.Unsetenv(testKey)
-
-	env := NewEnv()
-
-	// now remove this from the program's environment
-	os.Unsetenv(testKey)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.Getenv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestEnvSetenvDoesNotChangeTheProgramEnv(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
-
-	env := NewEnv()
-
-	// make sure this key does not exist in the program environment
-	os.Unsetenv(testKey)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	err := env.Setenv(testKey, expectedResult)
-	envResult := os.Getenv(testKey)
-	actualResult := env.Getenv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Nil(t, err)
-	assert.Empty(t, envResult)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestEnvSetenvReturnsErrorForZeroLengthKey(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := ""
-	testData := "this is a test"
-	env := NewEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	ok := env.Setenv(testKey, testData)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Error(t, ok)
-}
-
-func TestEnvSetenvReturnsErrorForKeyThatOnlyHasWhitespace(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "     "
-	testData := "this is a test"
-	env := NewEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	ok := env.Setenv(testKey, testData)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Error(t, ok)
-}
-
-func TestEnvClearenvDeletesAllVariables(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewEnv"
-	testData := "this is my value"
-
-	env := NewEnv()
-	env.Setenv(testKey, testData)
+	origEnviron := env.Environ()
+	defer env.RestoreEnvironment(origEnviron)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -203,252 +75,292 @@ func TestEnvClearenvDeletesAllVariables(t *testing.T) {
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Empty(t, env.Environ())
-	assert.Empty(t, env.Getenv(testKey))
+	assert.Empty(t, os.Environ())
 }
 
-func TestEnvLookupEnvReturnsTrueIfTheVariableExists(t *testing.T) {
+func TestProgramEnvExpandPerformsStringExpansion(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey := "TestNewEnv"
-	expectedResult := "this is my value"
+	env := NewProgramEnv()
+	env.Setenv("PARAM1", "foo")
+	expectedResult := "FOO"
 
-	env := NewEnv()
-	env.Setenv(testKey, expectedResult)
+	// clean up after ourselves
+	defer os.Unsetenv("PARAM1")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, ok := env.LookupEnv(testKey)
+	actualResult := env.Expand("${PARAM1^^}")
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvExpandReturnsOriginalStringIfExpansionGeneratesAnError(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+
+	// we need to set this, to make sure an attempt is made to compile
+	// the invalid pattern
+	env.Setenv("PARAM1", "foo")
+
+	// clean up after ourselves
+	defer os.Unsetenv("PARAM1")
+
+	expectedResult := "${PARAM1##abc[}"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Expand(expectedResult)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvGetenvRetrievesAValue(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+	env.Setenv("PARAM1", "foo")
+	expectedResult := "foo"
+
+	// clean up after ourselves
+	defer os.Unsetenv("PARAM1")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Getenv("PARAM1")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvGetenvReturnsEmptyStringWhenVariableNotSet(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+	expectedResult := ""
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Getenv("PARAM1_DOES_NOT_EXIST")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvIsAnExporter(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, actualResult)
+}
+
+func TestProgramEnvLookupEnvReturnsTrueWhenVarExists(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+	env.Setenv("PARAM1", "foo")
+	expectedResult := "foo"
+
+	// clean up after ourselves
+	defer os.Unsetenv("PARAM1")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv("PARAM1")
+
+	// ----------------------------------------------------------------
+	// test the results
+
 	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestEnvLookupEnvReturnsFalseIfTheVariableDoesNotExist(t *testing.T) {
+func TestProgramEnvLookupEnvReturnsFalseWhenVarDoesNotExist(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey := "TestNewEnv"
+	env := NewProgramEnv()
 	expectedResult := ""
-
-	env := NewEnv()
-	env.Unsetenv(testKey)
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult, ok := env.LookupEnv(testKey)
+	actualResult, ok := env.LookupEnv("PARAM1_DOES_NOT_EXIST")
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, actualResult)
 	assert.False(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestEnvUnsetenvDeletesAVariable(t *testing.T) {
+func TestProgramEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey := "TestNewEnv"
-	testData := "this is a test"
-	expectedResult := ""
+	expectedResult, err := os.UserHomeDir()
+	assert.Nil(t, err)
 
-	env := NewEnv()
-	env.Setenv(testKey, testData)
-
-	origLen := env.Length()
+	env := NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env.Unsetenv(testKey)
-
-	actualResult, ok := env.LookupEnv(testKey)
-	actualEnviron := env.Environ()
+	actualResult, ok := env.LookupHomeDir("")
 
 	// ----------------------------------------------------------------
 	// test the results
 
+	assert.True(t, ok)
 	assert.Equal(t, expectedResult, actualResult)
-	assert.False(t, ok)
-	assert.Equal(t, origLen-1, len(actualEnviron))
+}
 
-	// make sure it isn't in the environ too
-	prefix := testKey + "="
-	for _, pair := range actualEnviron {
-		assert.False(t, strings.HasPrefix(pair, prefix))
+func TestProgramEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	details, err := user.Lookup("root")
+	assert.Nil(t, err)
+	expectedResult := details.HomeDir
+
+	env := NewProgramEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("root")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+	expectedResult := ""
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("this user does not exist")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvMatchVarNamesReturnsListOfKeys(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+	env.Setenv("TestProgramEnv_PARAM1", "foo")
+	env.Setenv("TestProgramEnv_PARAM2", "bar")
+	expectedResult := []string{
+		"TestProgramEnv_PARAM1",
+		"TestProgramEnv_PARAM2",
 	}
-}
-
-func TestEnvUnsetenvDoesNotChangeProgramEnviron(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewEnv"
-	testData := "this is a test"
-	expectedResult := testData
-
-	os.Setenv(testKey, testData)
 
 	// clean up after ourselves
-	defer os.Unsetenv(testKey)
-
-	env := NewEnv()
+	defer func() {
+		for _, key := range expectedResult {
+			os.Unsetenv(key)
+		}
+	}()
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env.Unsetenv(testKey)
-
-	actualResult, ok := os.LookupEnv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	// still in the environment
-	assert.Equal(t, expectedResult, actualResult)
-	assert.True(t, ok)
-
-	// but gone from our Env
-	assert.Equal(t, "", env.Getenv(testKey))
-}
-
-func TestEnvEntriesFromProgramEnvironmentCanBeUpdated(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewEnv"
-	testData1 := "this is a test"
-	testData2 := "this is another test"
-	expectedResult := testData2
-
-	os.Setenv(testKey, testData1)
-
-	// clean up after ourselves
-	defer os.Unsetenv(testKey)
-
-	env := NewEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env.Setenv(testKey, testData2)
-
-	actualResult, ok := env.LookupEnv(testKey)
+	actualResult := env.MatchVarNames("TestProgramEnv_")
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
-	assert.True(t, ok)
 }
 
-func TestEnvUpdatedEntriesCanBeUnset(t *testing.T) {
+func TestProgramEnvSetenvUpdatesTheProgramEnvironment(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testKey1 := "TestNewEnv1"
-	testKey2 := "TestNewEnv2"
-	testData1 := "this is a test"
-	testData2 := "this is another test"
+	env := NewProgramEnv()
+	expectedResult := "foo"
 
-	env := NewEnv()
-
-	env.Setenv(testKey1, testData1)
-	env.Setenv(testKey2, testData1)
-
-	env.Setenv(testKey1, testData2)
-	testValue, ok := env.LookupEnv(testKey1)
-	assert.Equal(t, testData2, testValue)
-	assert.True(t, ok)
+	// clean up after ourselves
+	defer os.Unsetenv("PARAM1")
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env.Unsetenv(testKey1)
+	env.Setenv("PARAM1", "foo")
+	actualResult, ok := os.LookupEnv("PARAM1")
 
-	actualResult, ok := env.LookupEnv(testKey1)
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestProgramEnvUnsetenvUpdatesTheProgramEnvironment(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewProgramEnv()
+	expectedResult := ""
+
+	env.Setenv("PARAM1", "foo")
+
+	// clean up after ourselves
+	defer os.Unsetenv("PARAM1")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Unsetenv("PARAM1")
+	actualResult, ok := os.LookupEnv("PARAM1")
 
 	// ----------------------------------------------------------------
 	// test the results
 
 	assert.False(t, ok)
-	assert.Empty(t, actualResult)
-
-	// prove the 2nd entry hasn't been lost
-	testValue, ok = env.LookupEnv(testKey2)
-	assert.True(t, ok)
-	assert.Equal(t, testData1, testValue)
-}
-
-func TestEnvExpandCopesWithNilSequencePointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var env *Env
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env.Expand("hello ${HOME}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	// as long as it didn't crash, we're good
-}
-
-func TestEnvExpandCopesWithEmptySequence(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var env Env
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env.Expand("hello ${HOME}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	// as long as it didn't crash, we're good
-}
-
-func TestEnvExpandUsesEntriesInTheTemporaryEnvironment(t *testing.T) {
-	t.Parallel()
-
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestSequenceKey"
-	testValue1 := "this is a test"
-	testValue2 := "this is another test"
-	os.Setenv(testKey, testValue1)
-
-	// clean up after ourselves
-	defer os.Unsetenv(testKey)
-
-	expectedResult := "hello this is another test"
-
-	env := NewEnv()
-	env.Setenv(testKey, testValue2)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.Expand("hello ${TestSequenceKey}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
 	assert.Equal(t, expectedResult, actualResult)
 }

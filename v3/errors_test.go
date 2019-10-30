@@ -35,16 +35,62 @@
 
 package envish
 
-// Expander is the interface that wraps a variable backing store that
-// also supports string expansion
-type Expander interface {
-	Reader
-	Writer
+import (
+	"testing"
 
-	// Expand replaces ${var} or $var in the input string.
-	Expand(fmt string) string
+	"github.com/stretchr/testify/assert"
+)
 
-	// LookupHomeDir retrieves the given user's home directory, or false if
-	// that cannot be found
-	LookupHomeDir(username string) (string, bool)
+func TestErrEmptyKey(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := ErrEmptyKey{}
+	expectedResult := "zero-length key, or key only contains whitespace"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestErrEmptyOverlayEnv(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := ErrEmptyOverlayEnv{"TestErrEmptyOverlayEnv"}
+	expectedResult := "overlay env is empty; TestErrEmptyOverlayEnv"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestErrNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := ErrNilPointer{"TestErrNilPointer"}
+	expectedResult := "nil pointer to environment store passed to TestErrNilPointer"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := testData.Error()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
 }

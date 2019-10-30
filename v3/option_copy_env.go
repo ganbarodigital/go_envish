@@ -35,8 +35,12 @@
 
 package envish
 
-// SetAsExporter sets a flag so that the EnvStack will include its contents
-// when building an environ to export to Golang's exec package.
-func SetAsExporter(e *Env) {
-	e.isExporter = true
+import "os"
+
+// CopyProgramEnv copies your program's environment into the given
+// environment store.
+//
+// It replaces any existing variables in the environment store.
+func CopyProgramEnv(e *LocalEnv) {
+	e.pairs = os.Environ()
 }

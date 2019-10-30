@@ -33,28 +33,18 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package pipe
+package envish
 
 import (
-	"testing"
-
-	"github.com/stretchr/testify/assert"
+	"strings"
 )
 
-func TestErrEmptyKey(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
+func getKeyFromPair(pair string) string {
+	// environment variables on Windows can start with an '=' sign
+	pos := strings.Index(pair[1:], "=")
+	return pair[:pos+1]
+}
 
-	testData := ErrEmptyKey{}
-	expectedResult := "zero-length key, or key only contains whitespace"
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := testData.Error()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
+func getValueFromPair(pair string, key string) string {
+	return pair[len(key)+1:]
 }
