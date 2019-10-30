@@ -1,7 +1,5 @@
 # Welcome To Envish
 
-__This is the documentation for Envish v2. You can find the documentation for v1 in [README.v1.md](README.v1.md).
-
 ## Introduction
 
 Envish is a Golang library. It helps you emulate UNIX-like program environments in Golang packages.
