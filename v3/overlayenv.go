@@ -171,6 +171,25 @@ func (e *OverlayEnv) Getenv(key string) string {
 	return ""
 }
 
+// IsExporter returns true if this backing store holds variables that
+// should be exported to external programs
+func (e *OverlayEnv) IsExporter() bool {
+	// do we have an overlay to work with?
+	if e == nil {
+		return false
+	}
+
+	// do any of our overlays export anything?
+	for _, env := range e.envs {
+		if env.IsExporter() {
+			return true
+		}
+	}
+
+	// sadly, they do not
+	return false
+}
+
 // LookupEnv returns the value of the variable named by the key.
 //
 // If the key is not found, an empty string is returned, and the returned
