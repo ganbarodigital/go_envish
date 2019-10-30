@@ -12,6 +12,8 @@
 * Added `ProgramEnv` and its methods
 * Added `NewProgramEnv()`
 * Added `ErrEmptyOverlayEnv` error
+* Added `OverlayEnv` and its methods
+* Added `NewOverlayEnv()`
 
 ## v2.3.0
 
@@ -76,7 +78,7 @@ Other B/C breaks:
 
 ### New
 
-* Added NewEnv option: `envish.CopyProgramEnv` 
+* Added NewEnv option: `envish.CopyProgramEnv`
 
 ### Fixes
 
