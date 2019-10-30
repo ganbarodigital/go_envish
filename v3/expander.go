@@ -38,8 +38,7 @@ package envish
 // Expander is the interface that wraps a variable backing store that
 // also supports string expansion
 type Expander interface {
-	Reader
-	Writer
+	ReaderWriter
 
 	// Expand replaces ${var} or $var in the input string.
 	Expand(fmt string) string
