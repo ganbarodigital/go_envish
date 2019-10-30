@@ -529,6 +529,80 @@ func TestOverlayEnvGetenvReturnsEmptyStringIfEmptyStruct(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestOverlayEnvIsExporterReturnsTrueIfAnyEnvIsAnExporter(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+
+	stack := NewOverlayEnv(localEnv, progEnv)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	ok := stack.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestOverlayEnvIsExporterReturnsFalseIfAllEnvsAreNotExporters(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewLocalEnv()
+
+	stack := NewOverlayEnv(localEnv, progEnv)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	ok := stack.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, ok)
+}
+
+func TestOverlayEnvIsExporterReturnsFalseIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var stack *OverlayEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	ok := stack.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, ok)
+}
+
+func TestOverlayEnvIsExporterReturnsFalseIfEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	stack := OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	ok := stack.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, ok)
+}
+
 func TestOverlayEnvLookupEnvSearchesTheStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test

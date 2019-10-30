@@ -66,6 +66,7 @@ cmd.Start()
   - [OverlayEnv.Clearenv()](#overlayenvclearenv)
   - [OverlayEnv.Environ()](#overlayenvenviron)
   - [OverlayEnv.Expand()](#overlayenvexpand)
+  - [OverlayEnv.IsExporter()](#overlayenvisexporter)
   - [OverlayEnv.Getenv()](#overlayenvgetenv)
   - [OverlayEnv.LookupEnv()](#overlayenvlookupenv)
   - [OverlayEnv.LookupHomeDir()](#overlayenvlookuphomedir)
@@ -813,6 +814,27 @@ env := envish.NewOverlayEnv(localVars, progVars, progEnv)
 
 // show what we have
 fmt.Printf("HOME is %s\n", env.Getenv("HOME"))
+```
+
+### OverlayEnv.IsExporter()
+
+```golang
+func (e *OverlayEnv) IsExporter() bool
+```
+
+`IsExporter()` returns `true` if (and only if) any of the environments in the overlay env are exporters too.
+
+```golang
+localVars := envish.NewLocalEnv()
+progVars := envish.NewLocalEnv(SetAsExporter)
+progEnv := envish.NewProgramEnv()
+
+// combine them
+env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+
+// `true`, because `progVars.IsExporter()` and `progEnv.IsExporter()` will
+// have returned `true`
+exporting := env.IsExporter()
 ```
 
 ### OverlayEnv.LookupEnv()
