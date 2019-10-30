@@ -31,6 +31,11 @@ cmd.Start()
   - [Why A Separate Package?](#why-a-separate-package)
 - [How Does It Work?](#how-does-it-work)
   - [Getting Started](#getting-started)
+- [Interfaces](#interfaces)
+  - [Reader](#reader)
+  - [Writer](#writer)
+  - [ReaderWriter](#readerwriter)
+  - [Expander](#expander)
 - [LocalEnv](#localenv)
   - [NewLocalEnv()](#newlocalenv)
   - [NewLocalEnv() With Functional Options](#newlocalenv-with-functional-options)
@@ -108,6 +113,96 @@ Get and set variables in the environment store as needed:
 ```golang
 home := localEnv.Getenv()
 localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
+```
+
+## Interfaces
+
+_Envish_ publishes three interfaces:
+
+Interface                              | Description
+---------------------------------------|--------------------------------------
+[`envish.Reader`](#reader)             | For retrieving variables
+[`envish.Writer`](#writer)             | For creating and updating variables
+[`envish.ReaderWriter`](#readerwriter) | Full read/write support
+[`envish.Expander`](#expander)         | For UNIX shell string expansion
+
+### Reader
+
+```golang
+// Reader is the interface that wraps a basic, read-only
+// variable backing store
+type Reader interface {
+	// Environ returns a copy of all entries in the form "key=value".
+	Environ() []string
+
+	// Getenv returns the value of the variable named by the key.
+	//
+	// If the key is not found, an empty string is returned.
+	Getenv(key string) string
+
+	// IsExporter returns true if this backing store holds variables that
+	// should be exported to external programs
+	IsExporter() bool
+
+	// LookupEnv returns the value of the variable named by the key.
+	//
+	// If the key is not found, an empty string is returned, and the returned
+	// boolean is false.
+	LookupEnv(key string) (string, bool)
+
+	// MatchVarNames returns a list of variable names that start with the
+	// given prefix.
+	//
+	// This is very useful if you want to support `${PARAM:=word}` shell
+	// expansion in your own code.
+	MatchVarNames(prefix string) []string
+}
+```
+
+### Writer
+
+```golang
+// Writer is the interface that wraps a basic, write-only
+// variable backing store
+type Writer interface {
+	// Clearenv deletes all entries
+	Clearenv()
+
+	// Setenv sets the value of the variable named by the key.
+	Setenv(key, value string) error
+
+	// Unsetenv deletes the variable named by the key.
+	Unsetenv(key string)
+}
+```
+
+### ReaderWriter
+
+```golang
+// ReaderWriter is the interface that groups the basic Read and Write methods
+// for a variable backing store
+type ReaderWriter interface {
+	Reader
+	Writer
+}
+```
+
+### Expander
+
+```golang
+// Expander is the interface that wraps a variable backing store that
+// also supports string expansion
+type Expander interface {
+	Reader
+	Writer
+
+	// Expand replaces ${var} or $var in the input string.
+	Expand(fmt string) string
+
+	// LookupHomeDir retrieves the given user's home directory, or false if
+	// that cannot be found
+	LookupHomeDir(username string) (string, bool)
+}
 ```
 
 ## LocalEnv
