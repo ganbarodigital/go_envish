@@ -25,58 +25,58 @@ cmd.Start()
 
 - [Introduction](#introduction)
 - [Why Use Envish?](#why-use-envish)
-  - [Who Is Envish For?](#who-is-envish-for)
-  - [Why A Separate Package?](#why-a-separate-package)
+	- [Who Is Envish For?](#who-is-envish-for)
+	- [Why A Separate Package?](#why-a-separate-package)
 - [How Does It Work?](#how-does-it-work)
-  - [Getting Started](#getting-started)
+	- [Getting Started](#getting-started)
 - [Interfaces](#interfaces)
-  - [ShellEnv](#shellenv)
-  - [Reader](#reader)
-  - [Writer](#writer)
-  - [ReaderWriter](#readerwriter)
-  - [Expander](#expander)
+	- [ShellEnv](#shellenv)
+	- [Reader](#reader)
+	- [Writer](#writer)
+	- [ReaderWriter](#readerwriter)
+	- [Expander](#expander)
 - [LocalEnv](#localenv)
-  - [NewLocalEnv()](#newlocalenv)
-  - [NewLocalEnv() With Functional Options](#newlocalenv-with-functional-options)
-  - [LocalEnv.Clearenv()](#localenvclearenv)
-  - [LocalEnv.Environ()](#localenvenviron)
-  - [LocalEnv.Expand()](#localenvexpand)
-  - [LocalEnv.Getenv()](#localenvgetenv)
-  - [LocalEnv.IsExporter()](#localenvisexporter)
-  - [LocalEnv.Length()](#localenvlength)
-  - [LocalEnv.LookupEnv()](#localenvlookupenv)
-  - [LocalEnv.LookupHomeDir()](#localenvlookuphomedir)
-  - [LocalEnv.MatchVarNames()](#localenvmatchvarnames)
-  - [LocalEnv.ReplacePositionalParams()](#localenvreplacepositionalparams)
-  - [LocalEnv.ResetPositionalParams()](#localenvresetpositionalparams)
-  - [LocalEnv.SetPositionalParams()](#localenvsetpositionalparams)
-  - [LocalEnv.Setenv()](#localenvsetenv)
-  - [LocalEnv.Unsetenv()](#localenvunsetenv)
+	- [NewLocalEnv()](#newlocalenv)
+	- [NewLocalEnv() With Functional Options](#newlocalenv-with-functional-options)
+	- [LocalEnv.Clearenv()](#localenvclearenv)
+	- [LocalEnv.Environ()](#localenvenviron)
+	- [LocalEnv.Expand()](#localenvexpand)
+	- [LocalEnv.Getenv()](#localenvgetenv)
+	- [LocalEnv.IsExporter()](#localenvisexporter)
+	- [LocalEnv.Length()](#localenvlength)
+	- [LocalEnv.LookupEnv()](#localenvlookupenv)
+	- [LocalEnv.LookupHomeDir()](#localenvlookuphomedir)
+	- [LocalEnv.MatchVarNames()](#localenvmatchvarnames)
+	- [LocalEnv.ReplacePositionalParams()](#localenvreplacepositionalparams)
+	- [LocalEnv.ResetPositionalParams()](#localenvresetpositionalparams)
+	- [LocalEnv.SetPositionalParams()](#localenvsetpositionalparams)
+	- [LocalEnv.Setenv()](#localenvsetenv)
+	- [LocalEnv.Unsetenv()](#localenvunsetenv)
 - [ProgramEnv](#programenv)
-  - [NewProgramEnv()](#newprogramenv)
-  - [ProgramEnv.Clearenv()](#programenvclearenv)
-  - [ProgramEnv.Environ()](#programenvenviron)
-  - [ProgramEnv.Expand()](#programenvexpand)
-  - [ProgramEnv.Getenv()](#programenvgetenv)
-  - [ProgramEnv.IsExporter()](#programenvisexporter)
-  - [ProgramEnv.LookupEnv()](#programenvlookupenv)
-  - [ProgramEnv.LookupHomeDir()](#programenvlookuphomedir)
-  - [ProgramEnv.MatchVarNames()](#programenvmatchvarnames)
-  - [ProgramEnv.Setenv()](#programenvsetenv)
-  - [ProgramEnv.Unsetenv()](#programenvunsetenv)
+	- [NewProgramEnv()](#newprogramenv)
+	- [ProgramEnv.Clearenv()](#programenvclearenv)
+	- [ProgramEnv.Environ()](#programenvenviron)
+	- [ProgramEnv.Expand()](#programenvexpand)
+	- [ProgramEnv.Getenv()](#programenvgetenv)
+	- [ProgramEnv.IsExporter()](#programenvisexporter)
+	- [ProgramEnv.LookupEnv()](#programenvlookupenv)
+	- [ProgramEnv.LookupHomeDir()](#programenvlookuphomedir)
+	- [ProgramEnv.MatchVarNames()](#programenvmatchvarnames)
+	- [ProgramEnv.Setenv()](#programenvsetenv)
+	- [ProgramEnv.Unsetenv()](#programenvunsetenv)
 - [OverlayEnv](#overlayenv)
-  - [NewOverlayEnv()](#newoverlayenv)
-  - [OverlayEnv.GetEnvByID()](#overlayenvgetenvbyid)
-  - [OverlayEnv.Clearenv()](#overlayenvclearenv)
-  - [OverlayEnv.Environ()](#overlayenvenviron)
-  - [OverlayEnv.Expand()](#overlayenvexpand)
-  - [OverlayEnv.Getenv()](#overlayenvgetenv)
-  - [OverlayEnv.IsExporter()](#overlayenvisexporter)
-  - [OverlayEnv.LookupEnv()](#overlayenvlookupenv)
-  - [OverlayEnv.LookupHomeDir()](#overlayenvlookuphomedir)
-  - [MatchVarNames](#matchvarnames)
-  - [OverlayEnv.Setenv()](#overlayenvsetenv)
-  - [OverlayEnv.Unsetenv()](#overlayenvunsetenv)
+	- [NewOverlayEnv()](#newoverlayenv)
+	- [OverlayEnv.GetEnvByID()](#overlayenvgetenvbyid)
+	- [OverlayEnv.Clearenv()](#overlayenvclearenv)
+	- [OverlayEnv.Environ()](#overlayenvenviron)
+	- [OverlayEnv.Expand()](#overlayenvexpand)
+	- [OverlayEnv.Getenv()](#overlayenvgetenv)
+	- [OverlayEnv.IsExporter()](#overlayenvisexporter)
+	- [OverlayEnv.LookupEnv()](#overlayenvlookupenv)
+	- [OverlayEnv.LookupHomeDir()](#overlayenvlookuphomedir)
+	- [MatchVarNames](#matchvarnames)
+	- [OverlayEnv.Setenv()](#overlayenvsetenv)
+	- [OverlayEnv.Unsetenv()](#overlayenvunsetenv)
 
 ## Why Use Envish?
 
@@ -150,6 +150,12 @@ type ShellEnv interface {
 	Expander
 	ReaderWriter
 
+	// GetPositionalParamCount returns the value of the UNIX shell special
+	// parameter $#.
+	//
+	// If $# is not set, it returns 0.
+	GetPositionalParamCount() int
+
 	// ReplacePositionalParams sets $1, $2 etc etc to the given values.
 	//
 	// Any existing positional parameters are deleted.
@@ -165,7 +171,7 @@ type ShellEnv interface {
 	// It also sets the special parameter $# to 0.
 	ResetPositionalParams()
 
-  // SetPositionalParams sets $1, $2 etc etc to the given values.
+	// SetPositionalParams sets $1, $2 etc etc to the given values.
 	//
 	// Any existing positional parameters are overwritten, up to len(values).
 	// For example, the positional parameter $10 is *NOT* overwritten if
@@ -470,9 +476,11 @@ func (e *LocalEnv) ReplacePositionalParams(values ...string) int
 
 Any existing positional parameters are deleted.
 
-Use SetPositionalParams instead, if you want to preserve any of the existing positional params.
+Use `SetPositionalParams()` instead, if you want to preserve any of the existing positional params.
 
-It also sets the special parameter `$#`. The value of `$#` is returned.
+It also sets the special parameter `$#`.
+
+The value of `$#` is returned.
 
 ```golang
 // create an environment store
@@ -513,9 +521,9 @@ func (e *LocalEnv) SetPositionalParams(values ...string) int
 
 `SetPositionalParams()` sets `$1`, `$2` etc etc to the given values.
 
-Any existing positional parameters are overwritten, up to len(values). For example, the positional parameter $10 is *NOT* overwritten if you only pass in nine positional parameters.
+Any existing positional parameters are overwritten, up to `len(values)`. For example, the positional parameter $10 is *NOT* overwritten if you only pass in nine positional parameters.
 
-Use ReplacePositionalParams instead, if you want `values` to be the only positional parameters set.
+Use `ReplacePositionalParams()` instead, if you want `values` to be the only positional parameters set.
 
 It also updates the special parameter `$#` if needed. The (possibly new) value of `$#` is returned.
 

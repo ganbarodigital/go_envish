@@ -306,6 +306,14 @@ func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
 //
 // ----------------------------------------------------------------
 
+// GetPositionalParamCount returns the value of the UNIX shell special
+// parameter $#.
+//
+// If $# is not set, it returns 0.
+func (e *LocalEnv) GetPositionalParamCount() int {
+	return getPositionalParamCount(e)
+}
+
 // ReplacePositionalParams sets $1, $2 etc etc to the given values.
 //
 // Any existing positional parameters are deleted.

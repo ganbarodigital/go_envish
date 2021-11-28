@@ -53,6 +53,24 @@ func getPositionalParamCount(e Reader) int {
 	return retval
 }
 
+func getPositionalParams(e Reader) []string {
+	positionalCount := getPositionalParamCount(e)
+
+	// special case - no params to return
+	if positionalCount == 0 {
+		return []string{}
+	}
+
+	retval := make([]string, 0, positionalCount)
+	for i := 1; i <= positionalCount; i++ {
+		name := buildPositionalParamName(i)
+		retval = append(retval, e.Getenv(name))
+	}
+
+	// all done
+	return retval
+}
+
 // replacePositionalParams sets $1, $2 etc etc to the given values.
 //
 // Any existing positional parameters are deleted.

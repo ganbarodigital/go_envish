@@ -41,6 +41,12 @@ type ShellEnv interface {
 	Expander
 	ReaderWriter
 
+	// GetPositionalParamCount returns the value of the UNIX shell special
+	// parameter $#.
+	//
+	// If $# is not set, it returns 0.
+	GetPositionalParamCount() int
+
 	// ReplacePositionalParams sets $1, $2 etc etc to the given values.
 	//
 	// Any existing positional parameters are deleted.
