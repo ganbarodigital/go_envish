@@ -126,7 +126,7 @@ func TestGetPositionalParamCountReturnsDollarHash(t *testing.T) {
 //
 // ----------------------------------------------------------------
 
-func TestGetPositionalParamsReturnsDollarStar(t *testing.T) {
+func TestGetPositionalParamsEmulatesDollarStar(t *testing.T) {
 
 	// ----------------------------------------------------------------
 	// setup your test

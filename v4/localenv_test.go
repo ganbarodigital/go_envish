@@ -1158,6 +1158,40 @@ func TestLocalEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 //
 // ----------------------------------------------------------------
 
+func TestLocalEnvGetPositionalParamsEmulatesDollarStar(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+		"six",
+		"seven",
+		"eight",
+		"nine",
+		"ten",
+	}
+
+	env := NewLocalEnv()
+	env.SetPositionalParams(testData...)
+
+	expectedResult := testData
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.GetPositionalParams()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestLocalEnvReplacePositionalParamsSetsThePositionalParams(t *testing.T) {
 
 	// ----------------------------------------------------------------

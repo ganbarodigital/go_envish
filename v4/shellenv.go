@@ -47,6 +47,13 @@ type ShellEnv interface {
 	// If $# is not set, it returns 0.
 	GetPositionalParamCount() int
 
+	// GetPositionalParams returns the (emulated) value of the UNIX
+	// shell special parameter $@.
+	//
+	// It ignores any $@ that has been set in the environment, and builds
+	// the list up using the value of $#.
+	GetPositionalParams() []string
+
 	// ReplacePositionalParams sets $1, $2 etc etc to the given values.
 	//
 	// Any existing positional parameters are deleted.

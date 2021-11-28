@@ -41,6 +41,8 @@ cmd.Start()
 	- [LocalEnv.Clearenv()](#localenvclearenv)
 	- [LocalEnv.Environ()](#localenvenviron)
 	- [LocalEnv.Expand()](#localenvexpand)
+	- [LocalENv.GetPositionalParamCount()](#localenvgetpositionalparamcount)
+	- [LocalEnv.GetPositionalParams()](#localenvgetpositionalparams)
 	- [LocalEnv.Getenv()](#localenvgetenv)
 	- [LocalEnv.IsExporter()](#localenvisexporter)
 	- [LocalEnv.Length()](#localenvlength)
@@ -155,6 +157,13 @@ type ShellEnv interface {
 	//
 	// If $# is not set, it returns 0.
 	GetPositionalParamCount() int
+
+	// GetPositionalParams returns the (emulated) value of the UNIX
+	// shell special parameter $@.
+	//
+	// It ignores any $@ that has been set in the environment, and builds
+	// the list up using the value of $#.
+	GetPositionalParams() []string
 
 	// ReplacePositionalParams sets $1, $2 etc etc to the given values.
 	//
@@ -349,6 +358,48 @@ fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 ```
 
 `Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
+
+### LocalENv.GetPositionalParamCount()
+
+```golang
+func (e *LocalEnv) GetPositionalParamCount() int
+```
+
+`GetPositionalParamCount()` returns the value of the UNIX shell special parameter `$#`.
+
+If `$#` is not set, it returns 0.
+
+```golang
+// create an environment store
+localEnv := envish.NewLocalEnv()
+
+// set the positional parameters
+localEnv.SetPositionalParams("one", "two", "three")
+
+// will have the value 3
+dollarHash := localEnv.GetPositionalParamCount()
+```
+
+### LocalEnv.GetPositionalParams()
+
+```golang
+func (e *LocalEnv) GetPositionalParams() []string
+```
+
+`GetPositionalParams()` returns the (emulated) value of the UNIX shell special parameter `$@`.
+
+It ignores any `$@` that has been set in the environment, and builds the list up using the value of `$#`.
+
+```golang
+// create an environment store
+localEnv := envish.NewLocalEnv()
+
+// set the positional parameters
+localEnv.SetPositionalParams("one", "two", "three")
+
+// will have the value []string{"one", "two", "three"}
+dollarAt := localEnv.GetPositionalParams()
+```
 
 ### LocalEnv.Getenv()
 
