@@ -47,6 +47,12 @@ import (
 type ProgramEnv struct {
 }
 
+// ================================================================
+//
+// Constructors
+//
+// ----------------------------------------------------------------
+
 // NewProgramEnv creates an empty environment store
 func NewProgramEnv() *ProgramEnv {
 	retval := ProgramEnv{}
@@ -55,35 +61,15 @@ func NewProgramEnv() *ProgramEnv {
 	return &retval
 }
 
-// Clearenv deletes all entries
-func (e *ProgramEnv) Clearenv() {
-	os.Clearenv()
-}
+// ================================================================
+//
+// Reader interface
+//
+// ----------------------------------------------------------------
 
 // Environ returns a copy of all entries in the form "key=value".
 func (e *ProgramEnv) Environ() []string {
 	return os.Environ()
-}
-
-// Expand replaces ${var} or $var in the input string.
-func (e *ProgramEnv) Expand(fmt string) string {
-	cb := shellexpand.ExpansionCallbacks{
-		AssignToVar:   e.Setenv,
-		LookupHomeDir: e.LookupHomeDir,
-		LookupVar:     e.LookupEnv,
-		MatchVarNames: e.MatchVarNames,
-	}
-
-	// attempt full-on shell expansion
-	retval, err := shellexpand.Expand(fmt, cb)
-
-	// did it work?
-	if err != nil {
-		return fmt
-	}
-
-	// yes it did :)
-	return retval
 }
 
 // Getenv returns the value of the variable named by the key.
@@ -107,25 +93,6 @@ func (e *ProgramEnv) LookupEnv(key string) (string, bool) {
 	return os.LookupEnv(key)
 }
 
-// LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
-func (e *ProgramEnv) LookupHomeDir(username string) (string, bool) {
-	var details *user.User
-	var err error
-
-	if username == "" {
-		details, err = user.Current()
-	} else {
-		details, err = user.Lookup(username)
-	}
-
-	if err != nil {
-		return "", false
-	}
-
-	return details.HomeDir, true
-}
-
 // MatchVarNames returns a list of variable names that start with the
 // given prefix.
 //
@@ -147,6 +114,73 @@ func (e *ProgramEnv) MatchVarNames(prefix string) []string {
 	return retval
 }
 
+// ================================================================
+//
+// Writer interface
+//
+// ----------------------------------------------------------------
+
+// Clearenv deletes all entries
+func (e *ProgramEnv) Clearenv() {
+	os.Clearenv()
+}
+
+// Setenv sets the value of the variable named by the key.
+func (e *ProgramEnv) Setenv(key, value string) error {
+	return os.Setenv(key, value)
+}
+
+// Unsetenv deletes the variable named by the key.
+func (e *ProgramEnv) Unsetenv(key string) {
+	_ = os.Unsetenv(key)
+}
+
+// ================================================================
+//
+// Expand interface
+//
+// ----------------------------------------------------------------
+
+// Expand replaces ${var} or $var in the input string.
+func (e *ProgramEnv) Expand(fmt string) string {
+	cb := shellexpand.ExpansionCallbacks{
+		AssignToVar:   e.Setenv,
+		LookupHomeDir: e.LookupHomeDir,
+		LookupVar:     e.LookupEnv,
+		MatchVarNames: e.MatchVarNames,
+	}
+
+	// attempt full-on shell expansion
+	retval, err := shellexpand.Expand(fmt, cb)
+
+	// did it work?
+	if err != nil {
+		return fmt
+	}
+
+	// yes it did :)
+	return retval
+}
+
+// LookupHomeDir retrieves the given user's home directory, or false if
+// that cannot be found
+func (e *ProgramEnv) LookupHomeDir(username string) (string, bool) {
+	var details *user.User
+	var err error
+
+	if username == "" {
+		details, err = user.Current()
+	} else {
+		details, err = user.Lookup(username)
+	}
+
+	if err != nil {
+		return "", false
+	}
+
+	return details.HomeDir, true
+}
+
 // RestoreEnvironment writes the given "key=value" pairs into your
 // program's environment
 //
@@ -158,14 +192,4 @@ func (e *ProgramEnv) RestoreEnvironment(pairs []string) {
 
 		e.Setenv(key, value)
 	}
-}
-
-// Setenv sets the value of the variable named by the key.
-func (e *ProgramEnv) Setenv(key, value string) error {
-	return os.Setenv(key, value)
-}
-
-// Unsetenv deletes the variable named by the key.
-func (e *ProgramEnv) Unsetenv(key string) {
-	_ = os.Unsetenv(key)
 }

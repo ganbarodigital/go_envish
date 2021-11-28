@@ -47,6 +47,12 @@ type OverlayEnv struct {
 	envs []Expander
 }
 
+// ================================================================
+//
+// Constructors
+//
+// ----------------------------------------------------------------
+
 // NewOverlayEnv creates an empty stack of environment stores
 func NewOverlayEnv(envs ...Expander) *OverlayEnv {
 	retval := OverlayEnv{
@@ -73,20 +79,11 @@ func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool) {
 	return e.envs[id], true
 }
 
-// Clearenv deletes all entries
-func (e *OverlayEnv) Clearenv() {
-	// do we have a stack to work with?
-	if e == nil {
-		return
-	}
-
-	// wipe them out ... all of them ...
-	for i := range e.envs {
-		e.envs[i].Clearenv()
-	}
-
-	// all done
-}
+// ================================================================
+//
+// Reader interface
+//
+// ----------------------------------------------------------------
 
 // Environ returns a copy of all entries in the form "key=value".
 func (e *OverlayEnv) Environ() []string {
@@ -126,27 +123,6 @@ func (e *OverlayEnv) Environ() []string {
 	sort.Strings(retval)
 
 	// all done
-	return retval
-}
-
-// Expand replaces ${var} or $var in the input string.
-func (e *OverlayEnv) Expand(fmt string) string {
-	cb := shellexpand.ExpansionCallbacks{
-		AssignToVar:   e.Setenv,
-		LookupHomeDir: e.LookupHomeDir,
-		LookupVar:     e.LookupEnv,
-		MatchVarNames: e.MatchVarNames,
-	}
-
-	// attempt full-on shell expansion
-	retval, err := shellexpand.Expand(fmt, cb)
-
-	// did it work?
-	if err != nil {
-		return fmt
-	}
-
-	// yes it did :)
 	return retval
 }
 
@@ -211,25 +187,6 @@ func (e *OverlayEnv) LookupEnv(key string) (string, bool) {
 	return "", false
 }
 
-// LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
-func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
-	var details *user.User
-	var err error
-
-	if username == "" {
-		details, err = user.Current()
-	} else {
-		details, err = user.Lookup(username)
-	}
-
-	if err != nil {
-		return "", false
-	}
-
-	return details.HomeDir, true
-}
-
 // MatchVarNames returns a list of variable names that start with the
 // given prefix.
 //
@@ -262,6 +219,27 @@ func (e *OverlayEnv) MatchVarNames(prefix string) []string {
 
 	// all done
 	return retval
+}
+
+// ================================================================
+//
+// Writer interface
+//
+// ----------------------------------------------------------------
+
+// Clearenv deletes all entries
+func (e *OverlayEnv) Clearenv() {
+	// do we have a stack to work with?
+	if e == nil {
+		return
+	}
+
+	// wipe them out ... all of them ...
+	for i := range e.envs {
+		e.envs[i].Clearenv()
+	}
+
+	// all done
 }
 
 // Setenv sets the value of the variable named by the key.
@@ -300,4 +278,50 @@ func (e *OverlayEnv) Unsetenv(key string) {
 	for _, env := range e.envs {
 		env.Unsetenv(key)
 	}
+}
+
+// ================================================================
+//
+// Expander interface
+//
+// ----------------------------------------------------------------
+
+// Expand replaces ${var} or $var in the input string.
+func (e *OverlayEnv) Expand(fmt string) string {
+	cb := shellexpand.ExpansionCallbacks{
+		AssignToVar:   e.Setenv,
+		LookupHomeDir: e.LookupHomeDir,
+		LookupVar:     e.LookupEnv,
+		MatchVarNames: e.MatchVarNames,
+	}
+
+	// attempt full-on shell expansion
+	retval, err := shellexpand.Expand(fmt, cb)
+
+	// did it work?
+	if err != nil {
+		return fmt
+	}
+
+	// yes it did :)
+	return retval
+}
+
+// LookupHomeDir retrieves the given user's home directory, or false if
+// that cannot be found
+func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
+	var details *user.User
+	var err error
+
+	if username == "" {
+		details, err = user.Current()
+	} else {
+		details, err = user.Lookup(username)
+	}
+
+	if err != nil {
+		return "", false
+	}
+
+	return details.HomeDir, true
 }

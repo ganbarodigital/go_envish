@@ -191,7 +191,7 @@ func TestOverlayEnvImplementsShellEnv(t *testing.T) {
 
 // ================================================================
 //
-// Reader Compatibility
+// Unique Methods
 //
 // ----------------------------------------------------------------
 
@@ -297,70 +297,11 @@ func TestOverlayEnvGetEnvByIDReturnsCopesWithEmptyStruct(t *testing.T) {
 	assert.Nil(t, stack2)
 }
 
-func TestOverlayEnvClearenvEmptiesAllEnvironments(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	stack := NewOverlayEnv(localEnv, progEnv)
-
-	// we'll need to put the program's environment back afterwards!
-	origEnviron := os.Environ()
-	defer progEnv.RestoreEnvironment(origEnviron)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	stack.Clearenv()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	localEnviron := localEnv.Environ()
-	progEnviron := progEnv.Environ()
-
-	assert.Empty(t, localEnviron)
-	assert.Empty(t, progEnviron)
-}
-
-func TestOverlayEnvClearenvDoesNothingIfNilPointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var stack *OverlayEnv = nil
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	stack.Clearenv()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	osEnviron := os.Environ()
-
-	assert.NotEmpty(t, osEnviron)
-}
-
-func TestOverlayEnvClearenvDoesNothingIfEmptyStruct(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	stack := OverlayEnv{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	stack.Clearenv()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	osEnviron := os.Environ()
-
-	assert.NotEmpty(t, osEnviron)
-}
+// ================================================================
+//
+// Reader Compatibility
+//
+// ----------------------------------------------------------------
 
 func TestOverlayEnvironReturnsAllVariablesFromEnvsThatAreExporting(t *testing.T) {
 	// ----------------------------------------------------------------
@@ -484,60 +425,6 @@ func TestOverlayEnvironReturnsEmptyListIfEmptyStruct(t *testing.T) {
 	// perform the change
 
 	actualResult := stack.Environ()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestOverlayExpandSearchesTheStack(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	// we don't use a program environment here because its contents are
-	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
-	env1.Setenv("PARAM1_1", "hello")
-	env1.Setenv("PARAM1_2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
-	env2.Setenv("PARAM2_1", "trout")
-	env2.Setenv("PARAM1_2", "haddock")
-
-	expectedResult := "hello, world trout"
-	stack := NewOverlayEnv(env1, env2)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := stack.Expand("${PARAM1_1}, ${PARAM1_2} ${PARAM2_1}")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestOverlayExpandReturnsOriginalStringIfExpansionFails(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	// we don't use a program environment here because its contents are
-	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
-	env1.Setenv("PARAM1_1", "hello")
-	env1.Setenv("PARAM1_2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
-	env2.Setenv("PARAM1_1", "trout")
-	env2.Setenv("PARAM1_2", "haddock")
-
-	expectedResult := "${PARAM1_1#abc[}, ${PARAM1_2}"
-	stack := NewOverlayEnv(env1, env2)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := stack.Expand(expectedResult)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -858,68 +745,6 @@ func TestOverlayEnvLookupEnvReturnsEmptyStringIfEmptyStruct(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
-func TestOverlayEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult, err := os.UserHomeDir()
-	assert.Nil(t, err)
-
-	env := NewOverlayEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestOverlayEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	details, err := user.Lookup("root")
-	assert.Nil(t, err)
-	expectedResult := details.HomeDir
-
-	env := NewOverlayEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("root")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestOverlayEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := NewOverlayEnv()
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("this user does not exist")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.False(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
 func TestOverlayEnvMatchVarNamesSearchesTheStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -1016,6 +841,77 @@ func TestOverlayEnvMatchVarNamesReturnsEmptyListIfEmptyStruct(t *testing.T) {
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
+}
+
+// ================================================================
+//
+// Writer Compatibility
+//
+// ----------------------------------------------------------------
+
+func TestOverlayEnvClearenvEmptiesAllEnvironments(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	stack := NewOverlayEnv(localEnv, progEnv)
+
+	// we'll need to put the program's environment back afterwards!
+	origEnviron := os.Environ()
+	defer progEnv.RestoreEnvironment(origEnviron)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	localEnviron := localEnv.Environ()
+	progEnviron := progEnv.Environ()
+
+	assert.Empty(t, localEnviron)
+	assert.Empty(t, progEnviron)
+}
+
+func TestOverlayEnvClearenvDoesNothingIfNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var stack *OverlayEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	osEnviron := os.Environ()
+
+	assert.NotEmpty(t, osEnviron)
+}
+
+func TestOverlayEnvClearenvDoesNothingIfEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	stack := OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	stack.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	osEnviron := os.Environ()
+
+	assert.NotEmpty(t, osEnviron)
 }
 
 func TestOverlayEnvSetenvUpdatesExistingEntriesInStackOrder(t *testing.T) {
@@ -1176,4 +1072,126 @@ func TestOverlayEnvUnsetenvDoesNothingIfEmptyStack(t *testing.T) {
 
 	// ----------------------------------------------------------------
 	// test the results
+}
+
+// ================================================================
+//
+// Expander Compatibility
+//
+// ----------------------------------------------------------------
+
+func TestOverlayExpandSearchesTheStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1_1", "hello")
+	env1.Setenv("PARAM1_2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM2_1", "trout")
+	env2.Setenv("PARAM1_2", "haddock")
+
+	expectedResult := "hello, world trout"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Expand("${PARAM1_1}, ${PARAM1_2} ${PARAM2_1}")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayExpandReturnsOriginalStringIfExpansionFails(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	// we don't use a program environment here because its contents are
+	// unpredictable
+	env1 := NewLocalEnv(SetAsExporter)
+	env1.Setenv("PARAM1_1", "hello")
+	env1.Setenv("PARAM1_2", "world")
+	env2 := NewLocalEnv(SetAsExporter)
+	env2.Setenv("PARAM1_1", "trout")
+	env2.Setenv("PARAM1_2", "haddock")
+
+	expectedResult := "${PARAM1_1#abc[}, ${PARAM1_2}"
+	stack := NewOverlayEnv(env1, env2)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := stack.Expand(expectedResult)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult, err := os.UserHomeDir()
+	assert.Nil(t, err)
+
+	env := NewOverlayEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	details, err := user.Lookup("root")
+	assert.Nil(t, err)
+	expectedResult := details.HomeDir
+
+	env := NewOverlayEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("root")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewOverlayEnv()
+	expectedResult := ""
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupHomeDir("this user does not exist")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.False(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
 }

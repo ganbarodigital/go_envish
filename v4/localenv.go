@@ -61,6 +61,12 @@ type LocalEnv struct {
 	isExporter bool
 }
 
+// ================================================================
+//
+// Constructors
+//
+// ----------------------------------------------------------------
+
 // NewLocalEnv creates an empty environment store
 func NewLocalEnv(options ...func(*LocalEnv)) *LocalEnv {
 	retval := LocalEnv{}
@@ -77,17 +83,11 @@ func NewLocalEnv(options ...func(*LocalEnv)) *LocalEnv {
 	return &retval
 }
 
-// Clearenv deletes all entries
-func (e *LocalEnv) Clearenv() {
-	// do we have an environment store to work with?
-	if e == nil {
-		return
-	}
-
-	// yes, we do
-	e.pairs = []string{}
-	e.makePairIndex()
-}
+// ================================================================
+//
+// Reader interface
+//
+// ----------------------------------------------------------------
 
 // Environ returns a copy of all entries in the form "key=value".
 func (e *LocalEnv) Environ() []string {
@@ -98,33 +98,6 @@ func (e *LocalEnv) Environ() []string {
 
 	// yes we do
 	return e.pairs
-}
-
-// Expand replaces ${var} or $var in the input string.
-func (e *LocalEnv) Expand(fmt string) string {
-	// do we have an environment to work with?
-	if e == nil {
-		return fmt
-	}
-
-	// yes we do
-	cb := shellexpand.ExpansionCallbacks{
-		AssignToVar:   e.Setenv,
-		LookupHomeDir: e.LookupHomeDir,
-		LookupVar:     e.LookupEnv,
-		MatchVarNames: e.MatchVarNames,
-	}
-
-	// attempt full-on shell expansion
-	retval, err := shellexpand.Expand(fmt, cb)
-
-	// did it work?
-	if err != nil {
-		return fmt
-	}
-
-	// yes it did :)
-	return retval
 }
 
 // Getenv returns the value of the variable named by the key.
@@ -153,17 +126,6 @@ func (e *LocalEnv) IsExporter() bool {
 	return e.isExporter
 }
 
-// Length returns the number of key/value pairs stored in the Env
-func (e *LocalEnv) Length() int {
-	// do we have an environment store to work with?
-	if e == nil {
-		return 0
-	}
-
-	// yes we do
-	return len(e.pairs)
-}
-
 // LookupEnv returns the value of the variable named by the key.
 //
 // If the key is not found, an empty string is returned, and the returned
@@ -183,25 +145,6 @@ func (e *LocalEnv) LookupEnv(key string) (string, bool) {
 
 	// not found
 	return "", false
-}
-
-// LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
-func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
-	var details *user.User
-	var err error
-
-	if username == "" {
-		details, err = user.Current()
-	} else {
-		details, err = user.Lookup(username)
-	}
-
-	if err != nil {
-		return "", false
-	}
-
-	return details.HomeDir, true
 }
 
 // MatchVarNames returns a list of variable names that start with the
@@ -227,6 +170,24 @@ func (e *LocalEnv) MatchVarNames(prefix string) []string {
 
 	// all done
 	return retval
+}
+
+// ================================================================
+//
+// Writer interface
+//
+// ----------------------------------------------------------------
+
+// Clearenv deletes all entries
+func (e *LocalEnv) Clearenv() {
+	// do we have an environment store to work with?
+	if e == nil {
+		return
+	}
+
+	// yes, we do
+	e.pairs = []string{}
+	e.makePairIndex()
 }
 
 // Setenv sets the value of the variable named by the key.
@@ -285,6 +246,75 @@ func (e *LocalEnv) Unsetenv(key string) {
 		}
 	}
 	e.pairKeys = newPairKeys
+}
+
+// ================================================================
+//
+// Expander interface
+//
+// ----------------------------------------------------------------
+
+// Expand replaces ${var} or $var in the input string.
+func (e *LocalEnv) Expand(fmt string) string {
+	// do we have an environment to work with?
+	if e == nil {
+		return fmt
+	}
+
+	// yes we do
+	cb := shellexpand.ExpansionCallbacks{
+		AssignToVar:   e.Setenv,
+		LookupHomeDir: e.LookupHomeDir,
+		LookupVar:     e.LookupEnv,
+		MatchVarNames: e.MatchVarNames,
+	}
+
+	// attempt full-on shell expansion
+	retval, err := shellexpand.Expand(fmt, cb)
+
+	// did it work?
+	if err != nil {
+		return fmt
+	}
+
+	// yes it did :)
+	return retval
+}
+
+// LookupHomeDir retrieves the given user's home directory, or false if
+// that cannot be found
+func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
+	var details *user.User
+	var err error
+
+	if username == "" {
+		details, err = user.Current()
+	} else {
+		details, err = user.Lookup(username)
+	}
+
+	if err != nil {
+		return "", false
+	}
+
+	return details.HomeDir, true
+}
+
+// ================================================================
+//
+// Internal helpers
+//
+// ----------------------------------------------------------------
+
+// Length returns the number of key/value pairs stored in the Env
+func (e *LocalEnv) Length() int {
+	// do we have an environment store to work with?
+	if e == nil {
+		return 0
+	}
+
+	// yes we do
+	return len(e.pairs)
 }
 
 func (e *LocalEnv) findPairIndex(key string) int {

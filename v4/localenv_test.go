@@ -211,6 +211,43 @@ func TestLocalEnvImplementsShellEnv(t *testing.T) {
 //
 // ----------------------------------------------------------------
 
+func TestLocalEnvEnvironCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := LocalEnv{}
+	expectedResult := []string(nil)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvEnvironCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *LocalEnv = nil
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+
+}
+
 func TestLocalEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -279,6 +316,322 @@ func TestLocalEnvGetenvCopesWithNilPointer(t *testing.T) {
 	// test the results
 
 	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvIsNotAnExporterByDefault(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewLocalEnv()
+	expectedResult := false
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvCanBeCreatedAsExporter(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := NewLocalEnv(SetAsExporter)
+	expectedResult := true
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.IsExporter()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvLookupEnvReturnsTrueIfTheVariableExists(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewLocalEnv"
+	expectedResult := "this is my value"
+
+	env := NewLocalEnv()
+	env.Setenv(testKey, expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.True(t, ok)
+}
+
+func TestLocalEnvLookupEnvReturnsFalseIfTheVariableDoesNotExist(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewLocalEnv"
+	expectedResult := ""
+
+	env := NewLocalEnv()
+	env.Unsetenv(testKey)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.False(t, ok)
+}
+
+func TestLocalEnvLookupEnvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewLocalEnv"
+	expectedResult := ""
+
+	env := LocalEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.False(t, ok)
+}
+
+func TestLocalEnvLookupEnvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewLocalEnv"
+	expectedResult := ""
+
+	var env *LocalEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult, ok := env.LookupEnv(testKey)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.False(t, ok)
+}
+
+func TestLocalEnvMatchVarNamesReturnsAnEmptyListWhenEnvIsEmpty(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestLocalEnvMatchVarNames"
+	env := NewLocalEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Empty(t, actualResult)
+}
+
+func TestLocalEnvMatchVarNamesIsCaseSensitive(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarName"
+	env := NewLocalEnv()
+	env.Setenv("testNewLocalEnv", "dummy")
+	env.Setenv(testPrefix+"sOkay", "dummy")
+	env.Setenv(testPrefix+"sAnotherSuffix", "dummy")
+
+	expectedResult := []string{
+		"TestMatchVarNamesOkay",
+		"TestMatchVarNamesAnotherSuffix",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvMatchVarNamesOnlyMatchesPrefixes(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarName"
+	env := NewLocalEnv()
+	env.Setenv(testPrefix+"sOkay", "dummy")
+	env.Setenv("Dummy"+testPrefix+"sAnotherSuffix", "dummy")
+
+	expectedResult := []string{
+		"TestMatchVarNamesOkay",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvMatchVarNamesMatchesIfKeyEqualsPrefix(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarNames"
+	env := NewLocalEnv()
+	env.Setenv("testNewLocalEnv", "dummy")
+	env.Setenv(testPrefix, "dummy")
+	env.Setenv(testPrefix+"Okay", "dummy")
+
+	expectedResult := []string{
+		"TestMatchVarNames",
+		"TestMatchVarNamesOkay",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvMatchVarNamesCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarNames"
+	var env *LocalEnv = nil
+
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvMatchVarNamesCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testPrefix := "TestMatchVarNames"
+	env := LocalEnv{}
+
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualResult := env.MatchVarNames(testPrefix)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+// ================================================================
+//
+// Writer interface
+//
+// ----------------------------------------------------------------
+
+func TestLocalEnvClearenvDeletesAllVariables(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testKey := "TestNewLocalEnv"
+	testData := "this is my value"
+
+	env := NewLocalEnv()
+	env.Setenv(testKey, testData)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Empty(t, env.Environ())
+	assert.Empty(t, env.Getenv(testKey))
+}
+
+func TestLocalEnvClearenvCopesWithEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	env := LocalEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+}
+
+func TestLocalEnvClearenvCopesWithNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var env *LocalEnv = nil
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.Clearenv()
+
+	// ----------------------------------------------------------------
+	// test the results
+
 }
 
 func TestLocalEnvGetenvSetenvLookupEnvSupportDollarVars(t *testing.T) {
@@ -410,146 +763,6 @@ func TestLocalEnvSetenvCopesWithNilPointer(t *testing.T) {
 	// test the results
 
 	assert.Error(t, err)
-}
-
-func TestLocalEnvClearenvDeletesAllVariables(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewLocalEnv"
-	testData := "this is my value"
-
-	env := NewLocalEnv()
-	env.Setenv(testKey, testData)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env.Clearenv()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Empty(t, env.Environ())
-	assert.Empty(t, env.Getenv(testKey))
-}
-
-func TestLocalEnvClearenvCopesWithEmptyStruct(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := LocalEnv{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env.Clearenv()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-}
-
-func TestLocalEnvClearenvCopesWithNilPointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var env *LocalEnv = nil
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	env.Clearenv()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-}
-
-func TestLocalEnvLookupEnvReturnsTrueIfTheVariableExists(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewLocalEnv"
-	expectedResult := "this is my value"
-
-	env := NewLocalEnv()
-	env.Setenv(testKey, expectedResult)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupEnv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-	assert.True(t, ok)
-}
-
-func TestLocalEnvLookupEnvReturnsFalseIfTheVariableDoesNotExist(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewLocalEnv"
-	expectedResult := ""
-
-	env := NewLocalEnv()
-	env.Unsetenv(testKey)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupEnv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-	assert.False(t, ok)
-}
-
-func TestLocalEnvLookupEnvCopesWithEmptyStruct(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewLocalEnv"
-	expectedResult := ""
-
-	env := LocalEnv{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupEnv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-	assert.False(t, ok)
-}
-
-func TestLocalEnvLookupEnvCopesWithNilPointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testKey := "TestNewLocalEnv"
-	expectedResult := ""
-
-	var env *LocalEnv = nil
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupEnv(testKey)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-	assert.False(t, ok)
 }
 
 func TestLocalEnvUnsetenvDeletesAVariable(t *testing.T) {
@@ -746,42 +959,11 @@ func TestLocalEnvUpdatedEntriesCanBeUnset(t *testing.T) {
 	assert.Equal(t, testData1, testValue)
 }
 
-func TestLocalEnvEnvironCopesWithEmptyStruct(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := LocalEnv{}
-	expectedResult := []string(nil)
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.Environ()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvEnvironCopesWithNilPointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	var env *LocalEnv = nil
-	expectedResult := []string{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.Environ()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-
-}
+// ================================================================
+//
+// Expander interface
+//
+// ----------------------------------------------------------------
 
 func TestLocalEnvExpandCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
@@ -908,140 +1090,6 @@ func TestLocalEnvLengthCopesWithNilPointer(t *testing.T) {
 
 }
 
-func TestLocalEnvMatchVarNamesReturnsAnEmptyListWhenEnvIsEmpty(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testPrefix := "TestLocalEnvMatchVarNames"
-	env := NewLocalEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.MatchVarNames(testPrefix)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Empty(t, actualResult)
-}
-
-func TestLocalEnvMatchVarNamesIsCaseSensitive(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testPrefix := "TestMatchVarName"
-	env := NewLocalEnv()
-	env.Setenv("testNewLocalEnv", "dummy")
-	env.Setenv(testPrefix+"sOkay", "dummy")
-	env.Setenv(testPrefix+"sAnotherSuffix", "dummy")
-
-	expectedResult := []string{
-		"TestMatchVarNamesOkay",
-		"TestMatchVarNamesAnotherSuffix",
-	}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.MatchVarNames(testPrefix)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvMatchVarNamesOnlyMatchesPrefixes(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testPrefix := "TestMatchVarName"
-	env := NewLocalEnv()
-	env.Setenv(testPrefix+"sOkay", "dummy")
-	env.Setenv("Dummy"+testPrefix+"sAnotherSuffix", "dummy")
-
-	expectedResult := []string{
-		"TestMatchVarNamesOkay",
-	}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.MatchVarNames(testPrefix)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvMatchVarNamesMatchesIfKeyEqualsPrefix(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testPrefix := "TestMatchVarNames"
-	env := NewLocalEnv()
-	env.Setenv("testNewLocalEnv", "dummy")
-	env.Setenv(testPrefix, "dummy")
-	env.Setenv(testPrefix+"Okay", "dummy")
-
-	expectedResult := []string{
-		"TestMatchVarNames",
-		"TestMatchVarNamesOkay",
-	}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.MatchVarNames(testPrefix)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvMatchVarNamesCopesWithNilPointer(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testPrefix := "TestMatchVarNames"
-	var env *LocalEnv = nil
-
-	expectedResult := []string{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.MatchVarNames(testPrefix)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvMatchVarNamesCopesWithEmptyStruct(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	testPrefix := "TestMatchVarNames"
-	env := LocalEnv{}
-
-	expectedResult := []string{}
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.MatchVarNames(testPrefix)
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
 func TestLocalEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -1101,41 +1149,5 @@ func TestLocalEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	// test the results
 
 	assert.False(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvIsNotAnExporterByDefault(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := NewLocalEnv()
-	expectedResult := false
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.IsExporter()
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvCanBeCreatedAsExporter(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := NewLocalEnv(SetAsExporter)
-	expectedResult := true
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult := env.IsExporter()
-
-	// ----------------------------------------------------------------
-	// test the results
-
 	assert.Equal(t, expectedResult, actualResult)
 }
