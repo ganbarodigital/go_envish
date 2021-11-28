@@ -38,8 +38,6 @@ package envish
 import (
 	"os/user"
 	"strings"
-
-	shellexpand "github.com/ganbarodigital/go_shellexpand"
 )
 
 // LocalEnv holds a list key/value pairs.
@@ -256,29 +254,7 @@ func (e *LocalEnv) Unsetenv(key string) {
 
 // Expand replaces ${var} or $var in the input string.
 func (e *LocalEnv) Expand(fmt string) string {
-	// do we have an environment to work with?
-	if e == nil {
-		return fmt
-	}
-
-	// yes we do
-	cb := shellexpand.ExpansionCallbacks{
-		AssignToVar:   e.Setenv,
-		LookupHomeDir: e.LookupHomeDir,
-		LookupVar:     e.LookupEnv,
-		MatchVarNames: e.MatchVarNames,
-	}
-
-	// attempt full-on shell expansion
-	retval, err := shellexpand.Expand(fmt, cb)
-
-	// did it work?
-	if err != nil {
-		return fmt
-	}
-
-	// yes it did :)
-	return retval
+	return expand(e, fmt)
 }
 
 // LookupHomeDir retrieves the given user's home directory, or false if

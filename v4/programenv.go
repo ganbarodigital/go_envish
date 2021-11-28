@@ -39,8 +39,6 @@ import (
 	"os"
 	"os/user"
 	"strings"
-
-	shellexpand "github.com/ganbarodigital/go_shellexpand"
 )
 
 // ProgramEnv works directly on the program's environment
@@ -143,23 +141,7 @@ func (e *ProgramEnv) Unsetenv(key string) {
 
 // Expand replaces ${var} or $var in the input string.
 func (e *ProgramEnv) Expand(fmt string) string {
-	cb := shellexpand.ExpansionCallbacks{
-		AssignToVar:   e.Setenv,
-		LookupHomeDir: e.LookupHomeDir,
-		LookupVar:     e.LookupEnv,
-		MatchVarNames: e.MatchVarNames,
-	}
-
-	// attempt full-on shell expansion
-	retval, err := shellexpand.Expand(fmt, cb)
-
-	// did it work?
-	if err != nil {
-		return fmt
-	}
-
-	// yes it did :)
-	return retval
+	return expand(e, fmt)
 }
 
 // LookupHomeDir retrieves the given user's home directory, or false if
