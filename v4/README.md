@@ -7,7 +7,7 @@ Envish is a Golang library. It helps you emulate UNIX-like program environments 
 It is released under the 3-clause New BSD license. See [LICENSE.md](LICENSE.md) for details.
 
 ```go
-import envish "github.com/ganbarodigital/go_envish/v3"
+import envish "github.com/ganbarodigital/go_envish/v4"
 
 env := envish.NewLocalEnv()
 
@@ -66,8 +66,8 @@ cmd.Start()
   - [OverlayEnv.Clearenv()](#overlayenvclearenv)
   - [OverlayEnv.Environ()](#overlayenvenviron)
   - [OverlayEnv.Expand()](#overlayenvexpand)
-  - [OverlayEnv.IsExporter()](#overlayenvisexporter)
   - [OverlayEnv.Getenv()](#overlayenvgetenv)
+  - [OverlayEnv.IsExporter()](#overlayenvisexporter)
   - [OverlayEnv.LookupEnv()](#overlayenvlookupenv)
   - [OverlayEnv.LookupHomeDir()](#overlayenvlookuphomedir)
   - [MatchVarNames](#matchvarnames)
@@ -101,10 +101,10 @@ In the example above, the environment variable `DEBIAN_FRONTEND` is only set for
 Import Envish into your Golang code:
 
 ```golang
-import envish "github.com/ganbarodigital/go_envish/v3"
+import envish "github.com/ganbarodigital/go_envish/v4"
 ```
 
-__Don't forget that `v3` on the end of the import, or you'll get an older version of this package!__
+__Don't forget that `v4` on the end of the import, or you'll get an older version of this package!__
 
 Create a copy of your program's environment:
 
