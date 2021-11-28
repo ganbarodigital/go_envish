@@ -43,6 +43,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ================================================================
+//
+// Constructors
+//
+// ----------------------------------------------------------------
+
 func TestNewOverlayEnvReturnsStackOfEnvironments(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -61,6 +67,133 @@ func TestNewOverlayEnvReturnsStackOfEnvironments(t *testing.T) {
 	assert.Same(t, localEnv, stack.envs[0])
 	assert.Same(t, progEnv, stack.envs[1])
 }
+
+// ================================================================
+//
+// Interface compatibility
+//
+// ----------------------------------------------------------------
+
+func TestOverlayEnvImplementsReader(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	unit := NewOverlayEnv(localEnv, progEnv)
+
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Reader)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestOverlayEnvImplementsWriter(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	unit := NewOverlayEnv(localEnv, progEnv)
+
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Writer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestOverlayEnvImplementsReaderWriter(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	unit := NewOverlayEnv(localEnv, progEnv)
+
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(ReaderWriter)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestOverlayEnvImplementsExpander(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	unit := NewOverlayEnv(localEnv, progEnv)
+
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Expander)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestOverlayEnvImplementsShellEnv(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	localEnv := NewLocalEnv()
+	progEnv := NewProgramEnv()
+	unit := NewOverlayEnv(localEnv, progEnv)
+
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Writer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+// ================================================================
+//
+// Reader Compatibility
+//
+// ----------------------------------------------------------------
 
 func TestOverlayEnvGetEnvByIDReturnsFromTheStack(t *testing.T) {
 	// ----------------------------------------------------------------

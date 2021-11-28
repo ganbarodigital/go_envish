@@ -30,6 +30,7 @@ cmd.Start()
 - [How Does It Work?](#how-does-it-work)
   - [Getting Started](#getting-started)
 - [Interfaces](#interfaces)
+  - [ShellEnv](#shellenv)
   - [Reader](#reader)
   - [Writer](#writer)
   - [ReaderWriter](#readerwriter)
@@ -127,14 +128,26 @@ localEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 
 ## Interfaces
 
-_Envish_ publishes three interfaces:
+_Envish_ publishes five interfaces:
 
 Interface                              | Description
 ---------------------------------------|--------------------------------------
+[`envish.ShellEnv`](#env)              | For emulating a UNIX shell environment
 [`envish.Reader`](#reader)             | For retrieving variables
 [`envish.Writer`](#writer)             | For creating and updating variables
 [`envish.ReaderWriter`](#readerwriter) | Full read/write support
 [`envish.Expander`](#expander)         | For UNIX shell string expansion
+
+### ShellEnv
+
+```golang
+// ShellEnv is a list of operations needed by a UNIX shell, or an emulation
+// such as Scriptish.
+type ShellEnv interface {
+	Expander
+	ReaderWriter
+}
+```
 
 ### Reader
 

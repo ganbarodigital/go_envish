@@ -43,6 +43,12 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// ================================================================
+//
+// Constructors
+//
+// ----------------------------------------------------------------
+
 func TestNewProgramEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
@@ -77,6 +83,118 @@ func TestProgramEnvClearenvEmptiesYourProgramsEnvironment(t *testing.T) {
 
 	assert.Empty(t, os.Environ())
 }
+
+// ================================================================
+//
+// Interface compatibility
+//
+// ----------------------------------------------------------------
+
+func TestProgramEnvImplementsReader(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewProgramEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Reader)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestProgramEnvImplementsWriter(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewProgramEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Writer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestProgramEnvImplementsReaderWriter(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewProgramEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(ReaderWriter)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestProgramEnvImplementsExpander(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewProgramEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Expander)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestProgramEnvImplementsShellEnv(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewProgramEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Writer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+// ================================================================
+//
+// Reader Compatibility
+//
+// ----------------------------------------------------------------
 
 func TestProgramEnvExpandPerformsStringExpansion(t *testing.T) {
 	// ----------------------------------------------------------------

@@ -2,6 +2,10 @@
 
 ## develop
 
+### New
+
+* Added `ShellEnv` interface
+
 ## v3.0.1
 
 Released Wednesday, 30th October 2019.

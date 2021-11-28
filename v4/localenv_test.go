@@ -44,7 +44,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestNewEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
+// ================================================================
+//
+// Constructors
+//
+// ----------------------------------------------------------------
+
+func TestNewLocalEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
@@ -92,6 +98,118 @@ func TestNewLocalEnvRunsAnySuppliedOptionFunctions(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 }
+
+// ================================================================
+//
+// Interface compatibility
+//
+// ----------------------------------------------------------------
+
+func TestLocalEnvImplementsReader(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewLocalEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Reader)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestLocalEnvImplementsWriter(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewLocalEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Writer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestLocalEnvImplementsReaderWriter(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewLocalEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(ReaderWriter)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestLocalEnvImplementsExpander(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewLocalEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Expander)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+func TestLocalEnvImplementsShellEnv(t *testing.T) {
+	t.Parallel()
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewLocalEnv()
+	var i interface{} = unit
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	_, ok := i.(Writer)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.True(t, ok)
+}
+
+// ================================================================
+//
+// Reader Compatibility
+//
+// ----------------------------------------------------------------
 
 func TestLocalEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	// ----------------------------------------------------------------
