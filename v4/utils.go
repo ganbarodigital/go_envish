@@ -36,7 +36,6 @@
 package envish
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -48,21 +47,4 @@ func getKeyFromPair(pair string) string {
 
 func getValueFromPair(pair string, key string) string {
 	return pair[len(key)+1:]
-}
-
-func updatePositionalCount(e ReaderWriter, newLen int) int {
-	// what is the current value of $#?
-	positionalCount, err := strconv.Atoi(e.Getenv("$#"))
-	if err != nil {
-		positionalCount = 0
-	}
-
-	// do we need to update $#?
-	if positionalCount < newLen {
-		e.Setenv("$#", strconv.Itoa(newLen))
-		return newLen
-	}
-
-	// no, we do not
-	return positionalCount
 }

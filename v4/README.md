@@ -47,6 +47,7 @@ cmd.Start()
   - [LocalEnv.LookupEnv()](#localenvlookupenv)
   - [LocalEnv.LookupHomeDir()](#localenvlookuphomedir)
   - [LocalEnv.MatchVarNames()](#localenvmatchvarnames)
+  - [LocalEnv.ReplacePositionalParams()](#localenvreplacepositionalparams)
   - [LocalEnv.SetPositionalParams()](#localenvsetpositionalparams)
   - [LocalEnv.Setenv()](#localenvsetenv)
   - [LocalEnv.Unsetenv()](#localenvunsetenv)
@@ -147,6 +148,16 @@ Interface                              | Description
 type ShellEnv interface {
 	Expander
 	ReaderWriter
+
+	// ReplacePositionalParams sets $1, $2 etc etc to the given values.
+	//
+	// Any existing positional parameters are deleted.
+	//
+	// Use SetPositionalParams instead, if you want to preserve any of
+	// the existing positional params.
+	//
+	// It also sets the special parameter $#. The value of $# is returned.
+	ReplacePositionalParams(values ...string) int
 
   // SetPositionalParams sets $1, $2 etc etc to the given values.
 	//
@@ -441,6 +452,41 @@ localEnv := envish.NewLocalEnv()
 
 // find all variables that begin with 'ANSIBLE_'
 keys := localEnv.MatchVarNames("ANSIBLE_")
+```
+
+### LocalEnv.ReplacePositionalParams()
+
+```golang
+func (e *LocalEnv) ReplacePositionalParams(values ...string) int
+```
+
+`ReplacePositionalParams()` sets `$1`, `$2` etc etc to the given values.
+
+Any existing positional parameters are deleted.
+
+Use SetPositionalParams instead, if you want to preserve any of the existing positional params.
+
+It also sets the special parameter `$#`. The value of `$#` is returned.
+
+```golang
+// create an environment store
+localEnv := envish.NewLocalEnv()
+
+// set the positional parameters
+//
+// NOTE that $0 is NOT a positional parameter
+localEnv.SetPositionalParameters("go", "test", "-cover")
+
+// has the value 3
+hash := localEnv.Getenv("$#")
+
+// replace the positional parameters
+//
+// posCount will have the value 2
+posCount := localEnv.ReplacePositionalParameters("npm", "test")
+
+// has the value 2
+hash = localEnv.Getenv("$#")
 ```
 
 ### LocalEnv.SetPositionalParams()

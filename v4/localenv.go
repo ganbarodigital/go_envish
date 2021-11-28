@@ -306,6 +306,18 @@ func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
 //
 // ----------------------------------------------------------------
 
+// ReplacePositionalParams sets $1, $2 etc etc to the given values.
+//
+// Any existing positional parameters are deleted.
+//
+// Use SetPositionalParams instead, if you want to preserve any of
+// the existing positional params.
+//
+// It also sets the special parameter $#. The value of $# is returned.
+func (e *LocalEnv) ReplacePositionalParams(values ...string) int {
+	return replacePositionalParams(e, values...)
+}
+
 // SetPositionalParams sets $1, $2 etc etc to the given values.
 //
 // Any existing positional parameters are overwritten, up to len(values).

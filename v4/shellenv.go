@@ -41,6 +41,16 @@ type ShellEnv interface {
 	Expander
 	ReaderWriter
 
+	// ReplacePositionalParams sets $1, $2 etc etc to the given values.
+	//
+	// Any existing positional parameters are deleted.
+	//
+	// Use SetPositionalParams instead, if you want to preserve any of
+	// the existing positional params.
+	//
+	// It also sets the special parameter $#. The value of $# is returned.
+	ReplacePositionalParams(values ...string) int
+
 	// SetPositionalParams sets $1, $2 etc etc to the given values.
 	//
 	// Any existing positional parameters are overwritten, up to len(values).

@@ -35,7 +35,53 @@
 
 package envish
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
+
+func buildPositionalParamName(position int) string {
+	return fmt.Sprintf("$%d", position)
+}
+
+func getPositionalParamCount(e Reader) int {
+	retval, err := strconv.Atoi(e.Getenv("$#"))
+	if err != nil {
+		return 0
+	}
+
+	return retval
+}
+
+// replacePositionalParams sets $1, $2 etc etc to the given values.
+//
+// Any existing positional parameters are deleted.
+//
+// Use SetPositionalParams instead, if you want to preserve any of
+// the existing positional params.
+//
+// It also sets the special parameter $#. The value of $# is returned.
+func replacePositionalParams(e ReaderWriter, values ...string) int {
+	// get rid of any existing positional params
+	resetPositionalParams(e)
+
+	// set the new ones
+	return setPositionalParams(e, values...)
+}
+
+func resetPositionalParams(e ReaderWriter) {
+	// how many positional params do we have?
+	positionalCount := getPositionalParamCount(e)
+
+	// let's get rid of them
+	for i := 1; i <= positionalCount; i++ {
+		name := buildPositionalParamName(i)
+		e.Unsetenv(name)
+	}
+
+	// now we need to update $# too
+	e.Setenv("$#", "0")
+}
 
 // setPositionalParams sets $1, $2 etc etc to the given values.
 //
@@ -51,9 +97,23 @@ import "fmt"
 func setPositionalParams(e ReaderWriter, values ...string) int {
 	// set the positional values
 	for i, value := range values {
-		name := fmt.Sprintf("$%d", i+1)
+		name := buildPositionalParamName(i + 1)
 		e.Setenv(name, value)
 	}
 
 	return updatePositionalCount(e, len(values))
+}
+
+func updatePositionalCount(e ReaderWriter, newLen int) int {
+	// what is the current value of $#?
+	positionalCount := getPositionalParamCount(e)
+
+	// do we need to update $#?
+	if positionalCount < newLen {
+		e.Setenv("$#", strconv.Itoa(newLen))
+		return newLen
+	}
+
+	// no, we do not
+	return positionalCount
 }
