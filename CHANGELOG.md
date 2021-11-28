@@ -6,6 +6,7 @@
 
 * Added `ShellEnv` interface
 * Added `LocalEnv.ReplacePositionalParams()`
+* Added `LocalEnv.ResetPositionalParams()`
 * Added `LocalEnv.SetPositionalParams()`
 
 ## v3.0.1

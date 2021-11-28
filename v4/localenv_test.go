@@ -1293,6 +1293,41 @@ func TestLocalEnvReplacePositionalParamsUpdatesDollarHash(t *testing.T) {
 	assert.Equal(t, expectedResult, actualResult)
 }
 
+func TestLocalEnvResetPositionalParamsDeletesThePositionalParams(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	seedData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+		"six",
+		"seven",
+		"eight",
+		"nine",
+		"ten",
+	}
+
+	env := NewLocalEnv()
+	env.ReplacePositionalParams(seedData...)
+
+	expectedResult := "0"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.ResetPositionalParams()
+	actualResult := env.Getenv("$#")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
 func TestLocalEnvSetPositionalParamsSetsThePositionalParams(t *testing.T) {
 
 	// ----------------------------------------------------------------

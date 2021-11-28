@@ -48,6 +48,7 @@ cmd.Start()
   - [LocalEnv.LookupHomeDir()](#localenvlookuphomedir)
   - [LocalEnv.MatchVarNames()](#localenvmatchvarnames)
   - [LocalEnv.ReplacePositionalParams()](#localenvreplacepositionalparams)
+  - [LocalEnv.ResetPositionalParams()](#localenvresetpositionalparams)
   - [LocalEnv.SetPositionalParams()](#localenvsetpositionalparams)
   - [LocalEnv.Setenv()](#localenvsetenv)
   - [LocalEnv.Unsetenv()](#localenvunsetenv)
@@ -158,6 +159,11 @@ type ShellEnv interface {
 	//
 	// It also sets the special parameter $#. The value of $# is returned.
 	ReplacePositionalParams(values ...string) int
+
+	// ResetPositionalParams deletes $1, $2 etc etc from the environment.
+	//
+	// It also sets the special parameter $# to 0.
+	ResetPositionalParams()
 
   // SetPositionalParams sets $1, $2 etc etc to the given values.
 	//
@@ -488,6 +494,16 @@ posCount := localEnv.ReplacePositionalParameters("npm", "test")
 // has the value 2
 hash = localEnv.Getenv("$#")
 ```
+
+### LocalEnv.ResetPositionalParams()
+
+```golang
+func (e *LocalEnv) ResetPositionalParams()
+```
+
+`ResetPositionalParams()` deletes `$1`, `$2` etc etc from the environment.
+
+It also sets the special parameter `$#` to `0`.
 
 ### LocalEnv.SetPositionalParams()
 

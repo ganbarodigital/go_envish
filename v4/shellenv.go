@@ -51,6 +51,11 @@ type ShellEnv interface {
 	// It also sets the special parameter $#. The value of $# is returned.
 	ReplacePositionalParams(values ...string) int
 
+	// ResetPositionalParams deletes $1, $2 etc etc from the environment.
+	//
+	// It also sets the special parameter $# to 0.
+	ResetPositionalParams()
+
 	// SetPositionalParams sets $1, $2 etc etc to the given values.
 	//
 	// Any existing positional parameters are overwritten, up to len(values).
