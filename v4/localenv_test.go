@@ -197,7 +197,7 @@ func TestLocalEnvImplementsShellEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Writer)
+	_, ok := i.(ShellEnv)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -1149,5 +1149,153 @@ func TestLocalEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	// test the results
 
 	assert.False(t, ok)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+// ================================================================
+//
+// ShellEnv interface
+//
+// ----------------------------------------------------------------
+
+func TestLocalEnvSetPositionalParamsSetsThePositionalParams(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+		"six",
+		"seven",
+		"eight",
+		"nine",
+		"ten",
+	}
+
+	env := NewLocalEnv()
+
+	expectedLen := 10
+	expectedResult := []string{
+		"$1=one",
+		"$2=two",
+		"$3=three",
+		"$4=four",
+		"$5=five",
+		"$6=six",
+		"$7=seven",
+		"$8=eight",
+		"$9=nine",
+		"$10=ten",
+		"$#=10",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualLen := env.SetPositionalParams(testData...)
+	actualResult := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedLen, actualLen)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvSetPositionalParamsPreservesExistingPositionalParams(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	seedData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+		"six",
+		"seven",
+		"eight",
+		"nine",
+		"ten",
+	}
+
+	testData := []string{
+		"new one",
+		"new two",
+		"new three",
+	}
+
+	env := NewLocalEnv()
+	env.SetPositionalParams(seedData...)
+
+	expectedLen := 10
+	expectedResult := []string{
+		"$1=new one",
+		"$2=new two",
+		"$3=new three",
+		"$4=four",
+		"$5=five",
+		"$6=six",
+		"$7=seven",
+		"$8=eight",
+		"$9=nine",
+		"$10=ten",
+		"$#=10",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	actualLen := env.SetPositionalParams(testData...)
+	actualResult := env.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedLen, actualLen)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestLocalEnvSetPositionalParamsUpdatesDollarHash(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	seedData := []string{
+		"one",
+		"two",
+		"three",
+	}
+
+	testData := []string{
+		"new one",
+		"new two",
+		"new three",
+		"new four",
+		"new five",
+	}
+
+	env := NewLocalEnv()
+	env.SetPositionalParams(seedData...)
+
+	origHash := env.Getenv("$#")
+	assert.Equal(t, "3", origHash)
+
+	expectedResult := "5"
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	env.SetPositionalParams(testData...)
+	actualResult := env.Getenv("$#")
+
+	// ----------------------------------------------------------------
+	// test the results
+
 	assert.Equal(t, expectedResult, actualResult)
 }

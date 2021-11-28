@@ -302,6 +302,27 @@ func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
 
 // ================================================================
 //
+// ShellEnv interface
+//
+// ----------------------------------------------------------------
+
+// SetPositionalParams sets $1, $2 etc etc to the given values.
+//
+// Any existing positional parameters are overwritten, up to len(values).
+// For example, the positional parameter $10 is *NOT* overwritten if
+// you only pass in nine positional parameters.
+//
+// Use ReplacePositionalParams instead, if you want `values` to be the
+// only positional parameters set.
+//
+// It also updates the special parameter $# if needed. The (possibly new)
+// value of $# is returned.
+func (e *LocalEnv) SetPositionalParams(values ...string) int {
+	return setPositionalParams(e, values...)
+}
+
+// ================================================================
+//
 // Internal helpers
 //
 // ----------------------------------------------------------------

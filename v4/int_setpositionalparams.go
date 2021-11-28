@@ -35,34 +35,25 @@
 
 package envish
 
-import (
-	"strconv"
-	"strings"
-)
+import "fmt"
 
-func getKeyFromPair(pair string) string {
-	// environment variables on Windows can start with an '=' sign
-	pos := strings.Index(pair[1:], "=")
-	return pair[:pos+1]
-}
-
-func getValueFromPair(pair string, key string) string {
-	return pair[len(key)+1:]
-}
-
-func updatePositionalCount(e ReaderWriter, newLen int) int {
-	// what is the current value of $#?
-	positionalCount, err := strconv.Atoi(e.Getenv("$#"))
-	if err != nil {
-		positionalCount = 0
+// setPositionalParams sets $1, $2 etc etc to the given values.
+//
+// Any existing positional parameters are overwritten, up to len(values).
+// For example, the positional parameter $10 is *NOT* overwritten if
+// you only pass in nine positional parameters.
+//
+// Use ReplacePositionalParams instead, if you want `values` to be the
+// only positional parameters set.
+//
+// It also updates the special parameter $# if needed. The (possibly new)
+// value of $# is returned.
+func setPositionalParams(e ReaderWriter, values ...string) int {
+	// set the positional values
+	for i, value := range values {
+		name := fmt.Sprintf("$%d", i+1)
+		e.Setenv(name, value)
 	}
 
-	// do we need to update $#?
-	if positionalCount < newLen {
-		e.Setenv("$#", strconv.Itoa(newLen))
-		return newLen
-	}
-
-	// no, we do not
-	return positionalCount
+	return updatePositionalCount(e, len(values))
 }

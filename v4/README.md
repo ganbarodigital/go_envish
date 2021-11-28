@@ -47,6 +47,7 @@ cmd.Start()
   - [LocalEnv.LookupEnv()](#localenvlookupenv)
   - [LocalEnv.LookupHomeDir()](#localenvlookuphomedir)
   - [LocalEnv.MatchVarNames()](#localenvmatchvarnames)
+  - [LocalEnv.SetPositionalParams()](#localenvsetpositionalparams)
   - [LocalEnv.Setenv()](#localenvsetenv)
   - [LocalEnv.Unsetenv()](#localenvunsetenv)
 - [ProgramEnv](#programenv)
@@ -146,6 +147,19 @@ Interface                              | Description
 type ShellEnv interface {
 	Expander
 	ReaderWriter
+
+  // SetPositionalParams sets $1, $2 etc etc to the given values.
+	//
+	// Any existing positional parameters are overwritten, up to len(values).
+	// For example, the positional parameter $10 is *NOT* overwritten if
+	// you only pass in nine positional parameters.
+	//
+	// Use ReplacePositionalParams instead, if you want `values` to be the
+	// only positional parameters set.
+	//
+	// It also updates the special parameter $# if needed. The (possibly new)
+	// value of $# is returned.
+	SetPositionalParams(values ...string) int
 }
 ```
 
@@ -427,6 +441,39 @@ localEnv := envish.NewLocalEnv()
 
 // find all variables that begin with 'ANSIBLE_'
 keys := localEnv.MatchVarNames("ANSIBLE_")
+```
+
+### LocalEnv.SetPositionalParams()
+
+```golang
+func (e *LocalEnv) SetPositionalParams(values ...string) int
+```
+
+`SetPositionalParams()` sets `$1`, `$2` etc etc to the given values.
+
+Any existing positional parameters are overwritten, up to len(values). For example, the positional parameter $10 is *NOT* overwritten if you only pass in nine positional parameters.
+
+Use ReplacePositionalParams instead, if you want `values` to be the only positional parameters set.
+
+It also updates the special parameter `$#` if needed. The (possibly new) value of `$#` is returned.
+
+```golang
+// create an environment store
+localEnv := envish.NewLocalEnv()
+
+// set the positional parameters
+//
+// NOTE that $0 is NOT a positional parameter
+localEnv.SetPositionalParameters("go", "fish")
+
+// has the value "go"
+param1 := localEnv.Getenv("$1")
+
+// has the value "fish"
+param2 := localEnv.Getenv("$2")
+
+// has the value "2"
+param2 := localEnv.Getenv("$#")
 ```
 
 ### LocalEnv.Setenv()
