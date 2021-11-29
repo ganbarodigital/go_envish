@@ -492,6 +492,130 @@ func TestSetPositionalParamsUpdatesDollarHash(t *testing.T) {
 
 // ================================================================
 //
+// shiftPositionalParams()
+//
+// ----------------------------------------------------------------
+
+func TestShiftPositionalParamsLeftPopsThePositionalParams(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+	}
+
+	unit := NewLocalEnv()
+	unit.SetPositionalParams(testData...)
+
+	expectedResult := []string{
+		"two",
+		"three",
+		"four",
+		"five",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	shiftPositionalParams(unit, 1)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	actualResult := getPositionalParams(unit)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestShiftPositionalParamsSupportsAmountGreaterThanOne(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+	}
+
+	unit := NewLocalEnv()
+	unit.SetPositionalParams(testData...)
+
+	expectedResult := []string{
+		"four",
+		"five",
+	}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	shiftPositionalParams(unit, 3)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	actualResult := getPositionalParams(unit)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestShiftPositionalParamsRemovesAllPositionalParamsWhenAmountGreaterThanDollarHash(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	testData := []string{
+		"one",
+		"two",
+		"three",
+		"four",
+		"five",
+	}
+
+	unit := NewLocalEnv()
+	unit.SetPositionalParams(testData...)
+
+	expectedResult := []string{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	shiftPositionalParams(unit, 6)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	actualResult := getPositionalParams(unit)
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestShiftPositionalParamsDoesNotCrashWhenEnvironmentHasNoPositionalParams(t *testing.T) {
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := NewLocalEnv()
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	shiftPositionalParams(unit, 1)
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	// if we get here without crashing, we're good :)
+	actualResult := getPositionalParams(unit)
+	assert.Empty(t, actualResult)
+}
+
+// ================================================================
+//
 // updatePositionalSets()
 //
 // ----------------------------------------------------------------

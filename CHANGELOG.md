@@ -10,6 +10,7 @@
 * Added `LocalEnv.ReplacePositionalParams()`
 * Added `LocalEnv.ResetPositionalParams()`
 * Added `LocalEnv.SetPositionalParams()`
+* Added `LocalEnv.ShiftPositionalParams()`
 
 ## v3.0.1
 

@@ -319,6 +319,15 @@ func (e *LocalEnv) SetPositionalParams(values ...string) int {
 	return setPositionalParams(e, values...)
 }
 
+// ShiftPositionalParams removes the first amount of positional params
+// from the environment.
+//
+// For example, if you call ShiftPositionalParams(1), then $3 becomes
+// $2, $2 becomes $1, and the original $1 is discarded.
+func (e *LocalEnv) ShiftPositionalParams(amount int) {
+	shiftPositionalParams(e, amount)
+}
+
 // ================================================================
 //
 // Internal helpers

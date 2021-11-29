@@ -122,6 +122,27 @@ func setPositionalParams(e ReaderWriter, values ...string) int {
 	return updatePositionalCount(e, len(values))
 }
 
+// ShiftPositionalParams removes the first amount of positional params
+// from the environment.
+//
+// For example, if you call ShiftPositionalParams(1), then $3 becomes
+// $2, $2 becomes $1, and the original $1 is discarded.
+func shiftPositionalParams(e ReaderWriter, amount int) {
+	// how many positional params do we have?
+	paramCount := getPositionalParamCount(e)
+
+	// special case - are we removing all of the remaining positional
+	// parameters?
+	if amount >= paramCount {
+		resetPositionalParams(e)
+		return
+	}
+
+	// general case
+	params := getPositionalParams(e)
+	replacePositionalParams(e, params[amount:]...)
+}
+
 func updatePositionalCount(e ReaderWriter, newLen int) int {
 	// what is the current value of $#?
 	positionalCount := getPositionalParamCount(e)

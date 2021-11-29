@@ -81,4 +81,11 @@ type ShellEnv interface {
 	// It also updates the special parameter $# if needed. The (possibly new)
 	// value of $# is returned.
 	SetPositionalParams(values ...string) int
+
+	// ShiftPositionalParams removes the first amount of positional params
+	// from the environment.
+	//
+	// For example, if you call ShiftPositionalParams(1), then $3 becomes
+	// $2, $2 becomes $1, and the original $1 is discarded.
+	ShiftPositionalParams(amount int)
 }

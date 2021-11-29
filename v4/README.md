@@ -53,6 +53,7 @@ cmd.Start()
 	- [LocalEnv.ResetPositionalParams()](#localenvresetpositionalparams)
 	- [LocalEnv.SetPositionalParams()](#localenvsetpositionalparams)
 	- [LocalEnv.Setenv()](#localenvsetenv)
+	- [LocalEnv.ShiftPositionalParams()](#localenvshiftpositionalparams)
 	- [LocalEnv.Unsetenv()](#localenvunsetenv)
 - [ProgramEnv](#programenv)
 	- [NewProgramEnv()](#newprogramenv)
@@ -627,6 +628,25 @@ err := localEnv.Setenv("valid-key", "valid-value")
 ```
 
 Other errors may be added in future releases.
+
+### LocalEnv.ShiftPositionalParams()
+
+```golang
+func (e *LocalEnv) ShiftPositionalParams(amount int)
+```
+
+`ShiftPositionalParams()` removes the first `amount` of positional params from the environment.
+
+For example, if you call `ShiftPositionalParams(1)`, then `$3` becomes `$2`, `$2` becomes `$1`, and the original `$1` is discarded.
+
+```golang
+env := NewLocalEnv()
+env.SetPositionalParams("one", "two", "three")
+env.ShiftPositionalParams(1)
+
+// has value []string{"two", "three"}
+params := env.GetPositionalParams()
+```
 
 ### LocalEnv.Unsetenv()
 
