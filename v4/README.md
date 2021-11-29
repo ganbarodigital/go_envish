@@ -41,7 +41,7 @@ cmd.Start()
 	- [LocalEnv.Clearenv()](#localenvclearenv)
 	- [LocalEnv.Environ()](#localenvenviron)
 	- [LocalEnv.Expand()](#localenvexpand)
-	- [LocalENv.GetPositionalParamCount()](#localenvgetpositionalparamcount)
+	- [LocalEnv.GetPositionalParamCount()](#localenvgetpositionalparamcount)
 	- [LocalEnv.GetPositionalParams()](#localenvgetpositionalparams)
 	- [LocalEnv.Getenv()](#localenvgetenv)
 	- [LocalEnv.IsExporter()](#localenvisexporter)
@@ -60,12 +60,18 @@ cmd.Start()
 	- [ProgramEnv.Clearenv()](#programenvclearenv)
 	- [ProgramEnv.Environ()](#programenvenviron)
 	- [ProgramEnv.Expand()](#programenvexpand)
+	- [ProgramEnv.GetPositionalParamCount()](#programenvgetpositionalparamcount)
+	- [ProgramEnv.GetPositionalParams()](#programenvgetpositionalparams)
 	- [ProgramEnv.Getenv()](#programenvgetenv)
 	- [ProgramEnv.IsExporter()](#programenvisexporter)
 	- [ProgramEnv.LookupEnv()](#programenvlookupenv)
 	- [ProgramEnv.LookupHomeDir()](#programenvlookuphomedir)
 	- [ProgramEnv.MatchVarNames()](#programenvmatchvarnames)
+	- [ProgramEnv.ReplacePositionalParams()](#programenvreplacepositionalparams)
+	- [ProgramEnv.ResetPositionalParams()](#programenvresetpositionalparams)
+	- [ProgramEnv.SetPositionalParams()](#programenvsetpositionalparams)
 	- [ProgramEnv.Setenv()](#programenvsetenv)
+	- [ProgramEnv.ShiftPositionalParams()](#programenvshiftpositionalparams)
 	- [ProgramEnv.Unsetenv()](#programenvunsetenv)
 - [OverlayEnv](#overlayenv)
 	- [NewOverlayEnv()](#newoverlayenv)
@@ -360,7 +366,7 @@ fmt.Printf(localEnv.Expand("HOME is ${HOME}\n"))
 
 `Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
 
-### LocalENv.GetPositionalParamCount()
+### LocalEnv.GetPositionalParamCount()
 
 ```golang
 func (e *LocalEnv) GetPositionalParamCount() int
@@ -676,7 +682,7 @@ ProgramEnv gives you the same API as [LocalEnv](#localenv), only it works direct
 func NewProgramEnv() *ProgramEnv
 ```
 
-`NewProgramEnv` creates an empty environment store:
+`NewProgramEnv` creates an environment store, and populates it with your program's existing environment.
 
 ```golang
 progEnv := envish.NewProgramEnv()
@@ -729,6 +735,48 @@ fmt.Printf(progEnv.Expand("HOME is ${HOME}\n"))
 ```
 
 `Expand()` uses the [ShellExpand package](https://github.com/ganbarodigital/go_shellexpand) to do the expansion. It supports the vast majority of UNIX shell string expansion operations.
+
+### ProgramEnv.GetPositionalParamCount()
+
+```golang
+func (e *ProgramEnv) GetPositionalParamCount() int
+```
+
+`GetPositionalParamCount()` returns the value of the UNIX shell special parameter `$#`.
+
+If `$#` is not set, it returns 0.
+
+```golang
+// create an environment store
+env := envish.NewProgramEnv()
+
+// set the positional parameters
+env.ReplacePositionalParams("one", "two", "three")
+
+// will have the value 3
+dollarHash := env.GetPositionalParamCount()
+```
+
+### ProgramEnv.GetPositionalParams()
+
+```golang
+func (e *ProgramEnv) GetPositionalParams() []string
+```
+
+`GetPositionalParams()` returns the (emulated) value of the UNIX shell special parameter `$@`.
+
+It ignores any `$@` that has been set in the environment, and builds the list up using the value of `$#`.
+
+```golang
+// create an environment store
+env := envish.NewProgramEnv()
+
+// set the positional parameters
+env.ReplacePositionalParams("one", "two", "three")
+
+// will have the value []string{"one", "two", "three"}
+dollarAt := env.GetPositionalParams()
+```
 
 ### ProgramEnv.Getenv()
 
@@ -815,6 +863,87 @@ progEnv := envish.NewProgramEnv()
 keys := progEnv.MatchVarNames("ANSIBLE_")
 ```
 
+### ProgramEnv.ReplacePositionalParams()
+
+```golang
+func (e *LocalEnv) ReplacePositionalParams(values ...string) int
+```
+
+`ReplacePositionalParams()` sets `$1`, `$2` etc etc to the given values.
+
+Any existing positional parameters are deleted.
+
+Use `SetPositionalParams()` instead, if you want to preserve any of the existing positional params.
+
+It also sets the special parameter `$#`.
+
+The value of `$#` is returned.
+
+```golang
+// create an environment store
+env := envish.NewProgramEnv()
+
+// set the positional parameters
+//
+// NOTE that $0 is NOT a positional parameter
+env.ReplacePositionalParameters("go", "test", "-cover")
+
+// has the value 3
+hash := env.Getenv("$#")
+
+// replace the positional parameters
+//
+// posCount will have the value 2
+posCount := env.ReplacePositionalParameters("npm", "test")
+
+// has the value 2
+hash = env.Getenv("$#")
+```
+
+### ProgramEnv.ResetPositionalParams()
+
+```golang
+func (e *LocalEnv) ResetPositionalParams()
+```
+
+`ResetPositionalParams()` deletes `$1`, `$2` etc etc from the environment.
+
+It also sets the special parameter `$#` to `0`.
+
+### ProgramEnv.SetPositionalParams()
+
+```golang
+func (e *LocalEnv) SetPositionalParams(values ...string) int
+```
+
+`SetPositionalParams()` sets `$1`, `$2` etc etc to the given values.
+
+Any existing positional parameters are overwritten, up to `len(values)`. For example, the positional parameter $10 is *NOT* overwritten if you only pass in nine positional parameters.
+
+Use `ReplacePositionalParams()` instead, if you want `values` to be the only positional parameters set.
+
+It also updates the special parameter `$#` if needed. The (possibly new) value of `$#` is returned.
+
+```golang
+// create an environment store
+env := envish.NewProgramEnv()
+env.ResetPositionalParams()
+
+// set the positional parameters
+//
+// NOTE that $0 is NOT a positional parameter
+env.SetPositionalParameters("go", "fish")
+
+// has the value "go"
+param1 := env.Getenv("$1")
+
+// has the value "fish"
+param2 := env.Getenv("$2")
+
+// has the value "2"
+param2 := env.Getenv("$#")
+```
+
 ### ProgramEnv.Setenv()
 
 ```golang
@@ -831,6 +960,25 @@ progEnv.Setenv("DEBIAN_FRONTEND", "noninteractive")
 ```
 
 `Setenv` will return an error if something went wrong.
+
+### ProgramEnv.ShiftPositionalParams()
+
+```golang
+func (e *ProgramEnv) ShiftPositionalParams(amount int)
+```
+
+`ShiftPositionalParams()` removes the first `amount` of positional params from the environment.
+
+For example, if you call `ShiftPositionalParams(1)`, then `$3` becomes `$2`, `$2` becomes `$1`, and the original `$1` is discarded.
+
+```golang
+env := NewProgramEnv()
+env.ReplacePositionalParams("one", "two", "three")
+env.ShiftPositionalParams(1)
+
+// has value []string{"two", "three"}
+params := env.GetPositionalParams()
+```
 
 ### ProgramEnv.Unsetenv()
 

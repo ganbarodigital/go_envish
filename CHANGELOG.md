@@ -11,6 +11,12 @@
 * Added `LocalEnv.ResetPositionalParams()`
 * Added `LocalEnv.SetPositionalParams()`
 * Added `LocalEnv.ShiftPositionalParams()`
+* Added `ProgramEnv.GetPositionalParamCount()`
+* Added `ProgramEnv.GetPositionalParams()`
+* Added `ProgramEnv.ReplacePositionalParams()`
+* Added `ProgramEnv.ResetPositionalParams()`
+* Added `ProgramEnv.SetPositionalParams()`
+* Added `ProgramEnv.ShiftPositionalParams()`
 
 ## v3.0.1
 

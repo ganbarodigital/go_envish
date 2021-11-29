@@ -50,7 +50,8 @@ type ProgramEnv struct {
 //
 // ----------------------------------------------------------------
 
-// NewProgramEnv creates an empty environment store
+// NewProgramEnv creates an empty environment store, and populates
+// it with the contents of your program's environment.
 func NewProgramEnv() *ProgramEnv {
 	retval := ProgramEnv{}
 
@@ -160,4 +161,70 @@ func (e *ProgramEnv) RestoreEnvironment(pairs []string) {
 
 		e.Setenv(key, value)
 	}
+}
+
+// ================================================================
+//
+// ShellEnv interface
+//
+// ----------------------------------------------------------------
+
+// GetPositionalParamCount returns the value of the UNIX shell special
+// parameter $#.
+//
+// If $# is not set, it returns 0.
+func (e *ProgramEnv) GetPositionalParamCount() int {
+	return getPositionalParamCount(e)
+}
+
+// GetPositionalParams returns the (emulated) value of the UNIX
+// shell special parameter $@.
+//
+// It ignores any $@ that has been set in the environment, and builds
+// the list up using the value of $#.
+func (e *ProgramEnv) GetPositionalParams() []string {
+	return getPositionalParams(e)
+}
+
+// ReplacePositionalParams sets $1, $2 etc etc to the given values.
+//
+// Any existing positional parameters are deleted.
+//
+// Use SetPositionalParams instead, if you want to preserve any of
+// the existing positional params.
+//
+// It also sets the special parameter $#. The value of $# is returned.
+func (e *ProgramEnv) ReplacePositionalParams(values ...string) int {
+	return replacePositionalParams(e, values...)
+}
+
+// ResetPositionalParams deletes $1, $2 etc etc from the environment.
+//
+// It also sets the special parameter $# to 0.
+func (e *ProgramEnv) ResetPositionalParams() {
+	resetPositionalParams(e)
+}
+
+// SetPositionalParams sets $1, $2 etc etc to the given values.
+//
+// Any existing positional parameters are overwritten, up to len(values).
+// For example, the positional parameter $10 is *NOT* overwritten if
+// you only pass in nine positional parameters.
+//
+// Use ReplacePositionalParams instead, if you want `values` to be the
+// only positional parameters set.
+//
+// It also updates the special parameter $# if needed. The (possibly new)
+// value of $# is returned.
+func (e *ProgramEnv) SetPositionalParams(values ...string) int {
+	return setPositionalParams(e, values...)
+}
+
+// ShiftPositionalParams removes the first amount of positional params
+// from the environment.
+//
+// For example, if you call ShiftPositionalParams(1), then $3 becomes
+// $2, $2 becomes $1, and the original $1 is discarded.
+func (e *ProgramEnv) ShiftPositionalParams(amount int) {
+	shiftPositionalParams(e, amount)
 }
