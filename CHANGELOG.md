@@ -2,6 +2,11 @@
 
 ## develop
 
+### New
+
+* Added LookupHomeDir() as a standalone util
+  - we may also publish this as a separate package one day
+
 ## v3.0.1
 
 Released Wednesday, 30th October 2019.

@@ -27,6 +27,7 @@ cmd.Start()
 	- [func CopyProgramEnv](#func-copyprogramenv)
 	- [func GetKeyFromPair](#func-getkeyfrompair)
 	- [func GetValueFromPair](#func-getvaluefrompair)
+	- [func LookupHomeDir](#func-lookuphomedir)
 	- [func SetAsExporter](#func-setasexporter)
 - [Types](#types)
 	- [type ErrEmptyKey](#type-erremptykey)
@@ -119,6 +120,34 @@ GetKeyFromPair returns the `KEY` from a string `KEY=VALUE`.
 `func GetValueFromPair(pair string, key string) string`
 
 GetValueFromPair returns the `VALUE` from a string `KEY=VALUE`.
+
+### func [LookupHomeDir](/util_lookuphomedir.go#L46)
+
+`func LookupHomeDir(username string) (string, bool)`
+
+LookupHomeDir retrieves the given user's home directory, or false if
+that cannot be found.
+
+It does not use the value of $HOME at all.
+
+```golang
+package main
+
+import (
+	"fmt"
+	envish "github.com/ganbarodigital/go_envish"
+)
+
+func main() {
+	// ask the operating system where your home directory is
+	homedir, ok := envish.LookupHomeDir("")
+
+	// print the results
+	fmt.Printf("ok is %v", ok)
+	fmt.Printf("your homedir is: %s", homedir)
+}
+
+```
 
 ### func [SetAsExporter](/localenv_options.go#L40)
 
