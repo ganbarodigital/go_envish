@@ -35,8 +35,8 @@
 
 package envish
 
-// Expander is the interface that wraps a variable backing store that
-// also supports string expansion.
+// Expander is the interface that wraps a key/value store that also supports
+// string expansion.
 type Expander interface {
 	ReaderWriter
 

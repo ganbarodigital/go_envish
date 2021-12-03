@@ -36,7 +36,7 @@
 package envish
 
 // ReaderWriter is the interface that groups the basic Read and Write methods
-// for a variable backing store
+// for a key/value backing store.
 type ReaderWriter interface {
 	Reader
 	Writer

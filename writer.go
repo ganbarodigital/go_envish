@@ -35,8 +35,7 @@
 
 package envish
 
-// Writer is the interface that wraps a basic, write-only
-// variable backing store
+// Writer is the interface that wraps a basic, write-only key/value store.
 type Writer interface {
 	// Clearenv deletes all entries
 	Clearenv()

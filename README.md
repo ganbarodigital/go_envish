@@ -203,8 +203,8 @@ with a nil pointer
 
 `type Expander interface { ... }`
 
-Expander is the interface that wraps a variable backing store that
-also supports string expansion.
+Expander is the interface that wraps a key/value store that also supports
+string expansion.
 
 ### type [LocalEnv](/localenv.go#L43)
 
@@ -1664,22 +1664,21 @@ func main() {
 
 `type Reader interface { ... }`
 
-Reader is the interface that wraps a basic, read-only
-variable backing store
+Reader is the interface that wraps a basic, read-only key/value
+store.
 
 ### type [ReaderWriter](/readerwriter.go#L40)
 
 `type ReaderWriter interface { ... }`
 
 ReaderWriter is the interface that groups the basic Read and Write methods
-for a variable backing store
+for a key/value backing store.
 
-### type [Writer](/writer.go#L40)
+### type [Writer](/writer.go#L39)
 
 `type Writer interface { ... }`
 
-Writer is the interface that wraps a basic, write-only
-variable backing store
+Writer is the interface that wraps a basic, write-only key/value store.
 
 ---
 Readme created from Go doc with [goreadme](https://github.com/posener/goreadme)
