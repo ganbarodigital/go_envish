@@ -63,3 +63,11 @@ type ErrNilPointer struct {
 func (e ErrNilPointer) Error() string {
 	return fmt.Sprintf("nil pointer to environment store passed to %s", e.Method)
 }
+
+type ErrNoExporterEnv struct {
+	Method string
+}
+
+func (e ErrNoExporterEnv) Error() string {
+	return fmt.Sprintf("no exporting environment in OverlayEnv passed to %s", e.Method)
+}

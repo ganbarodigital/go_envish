@@ -36,12 +36,39 @@
 package envish_test
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
 	envish "github.com/ganbarodigital/go_envish"
 	"github.com/stretchr/testify/assert"
 )
+
+// ================================================================
+//
+// Test helpers
+//
+// ----------------------------------------------------------------
+
+type errBrokenExporter struct {
+	Method string
+}
+
+func (e errBrokenExporter) Error() string {
+	return fmt.Sprintf("errBrokenExporter created in %s", e.Method)
+}
+
+type brokenExporter struct {
+	envish.LocalEnv
+}
+
+func (e *brokenExporter) IsExporter() bool {
+	return true
+}
+
+func (e *brokenExporter) Setenv(key, value string) error {
+	return errBrokenExporter{"brokenExporter.Setenv"}
+}
 
 // ================================================================
 //
@@ -342,6 +369,229 @@ func TestOverlayEnvGetEnvByIDReturnsCopesWithEmptyStruct(t *testing.T) {
 
 	assert.False(t, ok2)
 	assert.Nil(t, stack2)
+}
+
+func TestOverlayEnvExportReturnsErrorForEmptyStruct(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := envish.OverlayEnv{}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	err := unit.Export("EXAMPLE", "VALUE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, err)
+	assert.Error(t, err)
+}
+
+func TestOverlayEnvExportReturnsErrorForNilPointer(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	var unit *envish.OverlayEnv
+
+	expectedResult := envish.ErrNilPointer{"OverlayEnv.Export"}
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	err := unit.Export("EXAMPLE", "VALUE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, err)
+	assert.Error(t, err)
+	assert.Equal(t, expectedResult, err)
+}
+
+func TestOverlayEnvExportReturnsErrorWhenNoExporterInStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	unit := envish.NewOverlayEnv(
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(),
+		},
+	)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	err := unit.Export("EXAMPLE", "VALUE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, err)
+	assert.Error(t, err)
+}
+
+func TestOverlayEnvExportMakesNoChangesWhenNoExporterInStack(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := "ORIG VALUE"
+
+	unit := envish.NewOverlayEnv(
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(),
+		},
+	)
+
+	unit.Setenv("EXAMPLE", expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.Export("EXAMPLE", "NEW VALUE")
+	actualResult := unit.Getenv("EXAMPLE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+}
+
+func TestOverlayEnvExportReturnsErrorWhenSetenvFails(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := errBrokenExporter{"brokenExporter.Setenv"}
+
+	unit := envish.NewOverlayEnv(
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			&brokenExporter{},
+		},
+	)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	err := unit.Export("EXAMPLE", "NEW VALUE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.NotNil(t, err)
+	assert.Error(t, err)
+	assert.Equal(t, expectedResult, err)
+}
+
+func TestOverlayEnvExportChangesAllLayersUpToFirstExporter(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := "NEW VALUE"
+
+	env0 := envish.NewLocalEnv()
+	env0.Setenv("EXAMPLE", "STACK 0")
+
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
+	env1.Setenv("EXAMPLE", "STACK 1")
+
+	unit := envish.NewOverlayEnv([]envish.Expander{env0, env1})
+
+	unit.Setenv("EXAMPLE", expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.Export("EXAMPLE", "NEW VALUE")
+	actualResult := unit.Getenv("EXAMPLE")
+	env0Result := env0.Getenv("EXAMPLE")
+	env1Result := env1.Getenv("EXAMPLE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, expectedResult, env0Result)
+	assert.Equal(t, expectedResult, env1Result)
+}
+
+func TestOverlayEnvExportStopsAfterFirstExporter(t *testing.T) {
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := "NEW VALUE"
+
+	env0 := envish.NewLocalEnv()
+	env0.Setenv("EXAMPLE", "STACK 0")
+
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
+	env1.Setenv("EXAMPLE", "STACK 1")
+
+	env2 := envish.NewLocalEnv()
+	env2.Setenv("EXAMPLE", "STACK 2")
+
+	unit := envish.NewOverlayEnv([]envish.Expander{env0, env1, env2})
+
+	unit.Setenv("EXAMPLE", expectedResult)
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.Export("EXAMPLE", "NEW VALUE")
+	actualResult := unit.Getenv("EXAMPLE")
+	env0Result := env0.Getenv("EXAMPLE")
+	env1Result := env1.Getenv("EXAMPLE")
+	env2Result := env2.Getenv("EXAMPLE")
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
+	assert.Equal(t, expectedResult, env0Result)
+	assert.Equal(t, expectedResult, env1Result)
+	assert.Equal(t, "STACK 2", env2Result)
+}
+
+func TestOverlayEnvExportChangeAppearsInEnviron(t *testing.T) {
+	// ----------------------------------------------------------------
+	// explain your test
+
+	// this test proves that it's safe for OverlayEnv.Export() to stop
+	// once it has found the first exporting environment in the stack
+
+	// ----------------------------------------------------------------
+	// setup your test
+
+	expectedResult := []string{
+		"EXAMPLE=NEW VALUE",
+	}
+
+	env0 := envish.NewLocalEnv()
+	env0.Setenv("EXAMPLE", "STACK 0")
+
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
+	env1.Setenv("EXAMPLE", "STACK 1")
+
+	env2 := envish.NewLocalEnv()
+	env2.Setenv("EXAMPLE", "STACK 2")
+
+	unit := envish.NewOverlayEnv([]envish.Expander{env0, env1, env2})
+
+	unit.Setenv("EXAMPLE", "NEW VALUE")
+
+	// ----------------------------------------------------------------
+	// perform the change
+
+	unit.Export("EXAMPLE", "NEW VALUE")
+	actualResult := unit.Environ()
+
+	// ----------------------------------------------------------------
+	// test the results
+
+	assert.Equal(t, expectedResult, actualResult)
 }
 
 // ================================================================

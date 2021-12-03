@@ -389,3 +389,65 @@ func (e *OverlayEnv) GetTopMostEnv() (Expander, error) {
 	// yes we do
 	return e.envs[0], nil
 }
+
+// Export emulates UNIX shell `export XXX=YYY` behaviour. It returns an
+// error if the environment variable cannot be set.
+//
+// * It makes no changes at all if the given OverlayEnv does not have any
+// environments that are exporters.
+//
+// * It searches each environment inside the given OverlayEnv in the order
+// that you passed them into NewOverlayEnv.
+//
+// * It overwrites any existing value for the given key, in every environment
+// that it searches (including environments that are not exporters). This
+// should ensure consistent results whenever you call Getenv on the given
+// OverlayEnv.
+//
+// * It stops once it has set the environment variable inside an environment
+// that is an exporter.
+func (e *OverlayEnv) Export(key, value string) error {
+	// do we have an OverlayEnv to work with?
+	if e == nil {
+		return ErrNilPointer{"OverlayEnv.Export"}
+	}
+
+	// do we have a stack to work with?
+	if len(e.envs) == 0 {
+		return ErrEmptyOverlayEnv{}
+	}
+
+	// do we have any exporters in the stack?
+	hasExporter := false
+	for _, env := range e.envs {
+		if env.IsExporter() {
+			hasExporter = true
+		}
+	}
+	if !hasExporter {
+		return ErrNoExporterEnv{"OverlayEnv.Export"}
+	}
+
+	// work through the stack
+	for _, env := range e.envs {
+		// shorthand
+		isExporter := env.IsExporter()
+		_, hasKey := env.LookupEnv(key)
+
+		if isExporter || hasKey {
+			err := env.Setenv(key, value)
+			if err != nil {
+				// we have to bail
+				return err
+			}
+		}
+
+		// are we done?
+		if isExporter {
+			break
+		}
+	}
+
+	// all done
+	return nil
+}

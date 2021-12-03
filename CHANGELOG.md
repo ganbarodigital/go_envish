@@ -16,6 +16,7 @@
 
 * Added LookupHomeDir() as a standalone util
   - we may also publish this as a separate package one day
+* Added OverlayEnv.Export()
 
 ## v3.0.1
 

@@ -15,7 +15,7 @@ env := envish.NewLocalEnv()
 env.Setenv("EXAMPLE_KEY", "EXAMPLE VALUE")
 
 // pass it into run a child process
-cmd := exec.Command(...)
+cmd := exec.Command('example-cmd')
 cmd.Env = env.Environ()
 cmd.Start()
 ```
@@ -33,6 +33,7 @@ cmd.Start()
 	- [type ErrEmptyKey](#type-erremptykey)
 	- [type ErrEmptyOverlayEnv](#type-erremptyoverlayenv)
 	- [type ErrNilPointer](#type-errnilpointer)
+	- [type ErrNoExporterEnv](#type-errnoexporterenv)
 	- [type Expander](#type-expander)
 	- [type LocalEnv](#type-localenv)
 	- [WithFunctionalOptions1](#withfunctionaloptions1)
@@ -189,6 +190,14 @@ with a nil pointer
 #### func (ErrNilPointer) [Error](/errors.go#L63)
 
 `func (e ErrNilPointer) Error() string`
+
+### type [ErrNoExporterEnv](/errors.go#L67)
+
+`type ErrNoExporterEnv struct { ... }`
+
+#### func (ErrNoExporterEnv) [Error](/errors.go#L71)
+
+`func (e ErrNoExporterEnv) Error() string`
 
 ### type [Expander](/expander.go#L40)
 
@@ -815,6 +824,55 @@ func main() {
 
 	// use UNIX shell expansion to see what we have
 	fmt.Print(env.Expand("USER is ${USER}\n"))
+}
+
+```
+
+#### func (*OverlayEnv) [Export](/overlayenv.go#L409)
+
+`func (e *OverlayEnv) Export(key, value string) error`
+
+Export emulates UNIX shell `export XXX=YYY` behaviour. It returns an
+error if the environment variable cannot be set.
+
+* It makes no changes at all if the given OverlayEnv does not have any
+environments that are exporters.
+
+* It searches each environment inside the given OverlayEnv in the order
+that you passed them into NewOverlayEnv.
+
+* It overwrites any existing value for the given key, in every environment
+that it searches (including environments that are not exporters). This
+should ensure consistent results whenever you call Getenv on the given
+OverlayEnv.
+
+* It stops once it has set the environment variable inside an environment
+that is an exporter.
+
+```golang
+package main
+
+import (
+	envish "github.com/ganbarodigital/go_envish"
+)
+
+func main() {
+	// build an environment stack without keeping a reference
+	// to any of the individual environments
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
+	)
+
+	// set a variable that we want to see appear in the Environ
+	// results
+	//
+	// this will be set in the second environment that we passed
+	// into NewOverlayEnv above
+	env.Export("DEBIAN_FRONTEND", "noninteractive")
 }
 
 ```

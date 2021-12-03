@@ -337,3 +337,22 @@ func ExampleOverlayEnv_GetTopMostEnv() {
 	localVars, _ := env.GetTopMostEnv()
 	localVars.Setenv("$#", "2")
 }
+
+func ExampleOverlayEnv_Export() {
+	// build an environment stack without keeping a reference
+	// to any of the individual environments
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
+	)
+
+	// set a variable that we want to see appear in the Environ
+	// results
+	//
+	// this will be set in the second environment that we passed
+	// into NewOverlayEnv above
+	env.Export("DEBIAN_FRONTEND", "noninteractive")
+}
