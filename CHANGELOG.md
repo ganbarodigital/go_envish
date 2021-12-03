@@ -2,22 +2,6 @@
 
 ## develop
 
-### New
-
-* Added `ShellEnv` interface
-* Added `LocalEnv.GetPositionalParamCount()`
-* Added `LocalEnv.GetPositionalParams()`
-* Added `LocalEnv.ReplacePositionalParams()`
-* Added `LocalEnv.ResetPositionalParams()`
-* Added `LocalEnv.SetPositionalParams()`
-* Added `LocalEnv.ShiftPositionalParams()`
-* Added `ProgramEnv.GetPositionalParamCount()`
-* Added `ProgramEnv.GetPositionalParams()`
-* Added `ProgramEnv.ReplacePositionalParams()`
-* Added `ProgramEnv.ResetPositionalParams()`
-* Added `ProgramEnv.SetPositionalParams()`
-* Added `ProgramEnv.ShiftPositionalParams()`
-
 ## v3.0.1
 
 Released Wednesday, 30th October 2019.

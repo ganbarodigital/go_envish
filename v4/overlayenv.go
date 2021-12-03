@@ -60,22 +60,6 @@ func NewOverlayEnv(envs ...Expander) *OverlayEnv {
 	return &retval
 }
 
-// GetEnvByID returns the environment you want to work with
-func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool) {
-	// do we have a stack to work with?
-	if e == nil {
-		return nil, false
-	}
-
-	// do we have the environment that has been requested?
-	if id >= len(e.envs) || id < 0 {
-		return nil, false
-	}
-
-	// yes, we do
-	return e.envs[id], true
-}
-
 // ================================================================
 //
 // Reader interface
@@ -292,4 +276,45 @@ func (e *OverlayEnv) Expand(fmt string) string {
 // that cannot be found
 func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
 	return lookupHomeDir(username)
+}
+
+// ================================================================
+//
+// Struct-unique functions
+//
+// ----------------------------------------------------------------
+
+// GetEnvByID returns the environment you want to work with
+func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool) {
+	// do we have a stack to work with?
+	if e == nil {
+		return nil, false
+	}
+
+	// do we have the environment that has been requested?
+	if id >= len(e.envs) || id < 0 {
+		return nil, false
+	}
+
+	// yes, we do
+	return e.envs[id], true
+}
+
+// GetTopMostEnv returns the envish environment that's at the top of the
+// overlay stack.
+//
+// If we don't have that environment, we return a suitable error.
+func (e *OverlayEnv) GetTopMostEnv() (Expander, error) {
+	// do we have an OverlayEnv to work with?
+	if e == nil {
+		return nil, ErrNilPointer{"OverlayEnv.GetTopMostEnv"}
+	}
+
+	// do we have a stack to work with?
+	if len(e.envs) == 0 {
+		return nil, ErrEmptyOverlayEnv{}
+	}
+
+	// yes we do
+	return e.envs[0], nil
 }
