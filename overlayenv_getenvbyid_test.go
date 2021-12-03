@@ -49,9 +49,11 @@ func ExampleOverlayEnv_GetEnvByID() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(envish.SetAsExporter),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	// NOTE how we use the constant defined earlier to find the right

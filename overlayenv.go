@@ -66,7 +66,7 @@ type OverlayEnv struct {
 // The order of the arguments to NewOverlayEnv matters. The returned
 // OverlayEnv's methods will read from / write to the underlying environments
 // in the order you've given.
-func NewOverlayEnv(envs ...Expander) *OverlayEnv {
+func NewOverlayEnv(envs []Expander) *OverlayEnv {
 	retval := OverlayEnv{
 		envs: envs,
 	}

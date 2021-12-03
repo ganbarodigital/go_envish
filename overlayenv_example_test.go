@@ -55,7 +55,13 @@ func ExampleNewOverlayEnv() {
 	progEnv := envish.NewProgramEnv()
 
 	// combine them
-	env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			localVars,
+			progVars,
+			progEnv,
+		},
+	)
 
 	// you can now treat them as a single environment
 	env.Setenv("$1", "go")
@@ -74,7 +80,13 @@ func ExampleOverlayEnv_Environ() {
 	progEnv := envish.NewProgramEnv()
 
 	// combine them
-	env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			localVars,
+			progVars,
+			progEnv,
+		},
+	)
 
 	// export their variables
 	//
@@ -98,9 +110,11 @@ func ExampleOverlayEnv_Getenv() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(envish.SetAsExporter),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	// show what we have
@@ -111,9 +125,11 @@ func ExampleOverlayEnv_IsExporter() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(envish.SetAsExporter),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	fmt.Print(env.IsExporter())
@@ -127,8 +143,10 @@ func ExampleOverlayEnv_IsExporter_noExporters() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(),
+		},
 	)
 
 	fmt.Print(env.IsExporter())
@@ -142,8 +160,10 @@ func ExampleOverlayEnv_IsExporter_programEnvIsAlwaysAnExporter() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	fmt.Print(env.IsExporter())
@@ -155,9 +175,11 @@ func ExampleOverlayEnv_LookupEnv() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(envish.SetAsExporter),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	home, ok := env.LookupEnv("HOME")
@@ -169,9 +191,11 @@ func ExampleOverlayEnv_MatchVarNames() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(envish.SetAsExporter),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	// print out all the variables with the prefix ANSIBLE_
@@ -196,7 +220,13 @@ func ExampleOverlayEnv_Setenv() {
 	progEnv := envish.NewProgramEnv()
 
 	// combine them
-	env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			localVars,
+			progVars,
+			progEnv,
+		},
+	)
 
 	// some example data to show how Setenv() works
 	localVars.Setenv("LOCAL", "100")
@@ -222,7 +252,13 @@ func ExampleOverlayEnv_Unsetenv() {
 	progEnv := envish.NewProgramEnv()
 
 	// combine them
-	env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			localVars,
+			progVars,
+			progEnv,
+		},
+	)
 
 	// some example data to show how Unsetenv() works
 	localVars.Setenv("VAR", "100")
@@ -268,7 +304,13 @@ func ExampleOverlayEnv_Expand() {
 	progEnv := envish.NewProgramEnv()
 
 	// combine them
-	env := envish.NewOverlayEnv(localVars, progVars, progEnv)
+	env := envish.NewOverlayEnv(
+		[]envish.Expander{
+			localVars,
+			progVars,
+			progEnv,
+		},
+	)
 
 	// use UNIX shell expansion to see what we have
 	fmt.Print(env.Expand("USER is ${USER}\n"))
@@ -284,9 +326,11 @@ func ExampleOverlayEnv_GetTopMostEnv() {
 	// build an environment stack without keeping a reference
 	// to any of the individual environments
 	env := envish.NewOverlayEnv(
-		envish.NewLocalEnv(),
-		envish.NewLocalEnv(envish.SetAsExporter),
-		envish.NewProgramEnv(),
+		[]envish.Expander{
+			envish.NewLocalEnv(),
+			envish.NewLocalEnv(envish.SetAsExporter),
+			envish.NewProgramEnv(),
+		},
 	)
 
 	// now, imagine we want to set some local variables

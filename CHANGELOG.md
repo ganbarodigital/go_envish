@@ -9,6 +9,8 @@
   - removed `LocalEnv.LookupHomeDir()`
   - removed `OverlayEnv.LookupHomeDir()`
   - removed `ProgramEnv.LookupHomeDir()`
+* NewOverlayEnv() now requires a `[]envish.Expander`
+  - no longer supports rest parameters for adding environments
 
 ### New
 
