@@ -151,8 +151,7 @@ func (e *LocalEnv) LookupEnv(key string) (string, bool) {
 // MatchVarNames returns a list of variable names that start with the
 // given prefix.
 //
-// This is very useful if you want to support `${PARAM:=word}` shell
-// expansion in your own code.
+// It's a feature needed for `${!prefix*}` string expansion syntax.
 func (e *LocalEnv) MatchVarNames(prefix string) []string {
 	// our return value
 	retval := []string{}

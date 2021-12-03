@@ -47,7 +47,7 @@ func ExampleLocalEnv() {
 	localEnv := envish.NewLocalEnv()
 
 	// it starts as an empty environment
-	fmt.Print(localEnv.Getenv("$HOME"))
+	fmt.Print(localEnv.Getenv("$USER"))
 }
 
 func ExampleNewLocalEnv() {
@@ -55,7 +55,7 @@ func ExampleNewLocalEnv() {
 	localEnv := envish.NewLocalEnv()
 
 	// it starts as an empty environment
-	fmt.Print(localEnv.Getenv("$HOME"))
+	fmt.Print(localEnv.Getenv("$USER"))
 }
 
 // CopyProgramEnv is a functional option that will populate the environment
@@ -66,9 +66,9 @@ func ExampleNewLocalEnv_withFunctionalOptions1() {
 	// it will start with a copy of your program's environment
 	localEnv := envish.NewLocalEnv(envish.CopyProgramEnv)
 
-	// on UNIX-like systems, this will print the location of
-	// your user's home directory
-	fmt.Print(localEnv.Getenv("$HOME"))
+	// on UNIX-like systems, this will print the name of the user
+	// who is running the program
+	fmt.Print(localEnv.Getenv("$USER"))
 }
 
 // SetAsExporter is a functional option that will tell the OverlayEnv to
@@ -108,8 +108,8 @@ func ExampleLocalEnv_Getenv() {
 	localEnv := envish.NewLocalEnv()
 
 	// get a variable from the environment store
-	home := localEnv.Getenv("HOME")
-	fmt.Print(home)
+	user := localEnv.Getenv("USER")
+	fmt.Print(user)
 }
 
 func ExampleLocalEnv_IsExporter() {
@@ -131,7 +131,7 @@ func ExampleLocalEnv_LookupEnv() {
 	localEnv := envish.NewLocalEnv()
 
 	// find out if a key exists
-	value, ok := localEnv.LookupEnv("HOME")
+	value, ok := localEnv.LookupEnv("USER")
 	fmt.Printf("key exists: %v", ok)
 	fmt.Printf("value of key: %s", value)
 }
@@ -199,7 +199,7 @@ func ExampleLocalEnv_Unsetenv() {
 	localEnv := envish.NewLocalEnv()
 
 	// delete an entry from the environment store
-	localEnv.Unsetenv("HOME")
+	localEnv.Unsetenv("$#")
 }
 
 // ================================================================
@@ -213,7 +213,7 @@ func ExampleLocalEnv_Expand() {
 	localEnv := envish.NewLocalEnv()
 
 	// show what we have
-	fmt.Print(localEnv.Expand("HOME is ${HOME}\n"))
+	fmt.Print(localEnv.Expand("USER is ${USER}\n"))
 }
 
 // ================================================================
