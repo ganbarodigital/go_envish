@@ -64,7 +64,10 @@ type LocalEnv struct {
 //
 // ----------------------------------------------------------------
 
-// NewLocalEnv creates an empty environment store
+// NewLocalEnv creates an empty environment store.
+//
+// You can pass (functional options) https://dave.cheney.net/2014/10/17/functional-options-for-friendly-apis
+// into NewLocalEnv to change the environment store before it is returned to you.
 func NewLocalEnv(options ...func(*LocalEnv)) *LocalEnv {
 	retval := LocalEnv{}
 
@@ -87,6 +90,7 @@ func NewLocalEnv(options ...func(*LocalEnv)) *LocalEnv {
 // ----------------------------------------------------------------
 
 // Environ returns a copy of all entries in the form "key=value".
+// This is compatible with any Golang standard library, such as `os/exec`.
 func (e *LocalEnv) Environ() []string {
 	// do we have an environment store to work with?
 	if e == nil {
@@ -118,7 +122,7 @@ func (e *LocalEnv) Getenv(key string) string {
 }
 
 // IsExporter returns true if this backing store holds variables that
-// should be exported to external programs
+// should be exported to external programs.
 func (e *LocalEnv) IsExporter() bool {
 	return e.isExporter
 }
@@ -175,7 +179,8 @@ func (e *LocalEnv) MatchVarNames(prefix string) []string {
 //
 // ----------------------------------------------------------------
 
-// Clearenv deletes all entries
+// Clearenv deletes all entries from the given LocalEnv. The program's
+// environment remains unchanged.
 func (e *LocalEnv) Clearenv() {
 	// do we have an environment store to work with?
 	if e == nil {
@@ -187,7 +192,8 @@ func (e *LocalEnv) Clearenv() {
 	e.makePairIndex()
 }
 
-// Setenv sets the value of the variable named by the key.
+// Setenv sets the value of the variable named by the key. The program's
+// environment remains unchanged.
 func (e *LocalEnv) Setenv(key, value string) error {
 	// do we have an environment store to work with
 	if e == nil {
@@ -252,12 +258,19 @@ func (e *LocalEnv) Unsetenv(key string) {
 // ----------------------------------------------------------------
 
 // Expand replaces ${var} or $var in the input string.
+//
+// Internally, it uses https://github.com/ganbarodigital/go_shellexpand
+// to do the expansion.
 func (e *LocalEnv) Expand(fmt string) string {
 	return expand(e, fmt)
 }
 
-// LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
+// LookupHomeDir returns the full path to the given user's home directory,
+// or false if that cannot be found.
+//
+// Note
+//
+// It does not use the value of $HOME at all.
 func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
 	return lookupHomeDir(username)
 }
@@ -268,7 +281,7 @@ func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
 //
 // ----------------------------------------------------------------
 
-// Length returns the number of key/value pairs stored in the Env
+// Length returns the number of key/value pairs stored in the LocalEnv.
 func (e *LocalEnv) Length() int {
 	// do we have an environment store to work with?
 	if e == nil {
