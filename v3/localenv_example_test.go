@@ -178,7 +178,6 @@ func ExampleLocalEnv_Setenv_errEmptyKey() {
 	err := localEnv.Setenv("", "key-is-invalid")
 	fmt.Print(err)
 	// Output:
-	//
 	// zero-length key, or key only contains whitespace
 }
 
@@ -190,7 +189,6 @@ func ExampleLocalEnv_Setenv_errNilPointer() {
 	err := localEnv.Setenv("valid-key", "valid-value")
 	fmt.Print(err)
 	// Output:
-	//
 	// nil pointer to environment store passed to LocalEnv.Setenv
 }
 
@@ -231,6 +229,5 @@ func ExampleLocalEnv_Length() {
 	// a new LocalEnv starts with no entries
 	fmt.Printf("environment has %d entries\n", localEnv.Length())
 	// Output:
-	//
 	// environment has 0 entries
 }

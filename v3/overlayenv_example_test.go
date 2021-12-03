@@ -118,7 +118,6 @@ func ExampleOverlayEnv_IsExporter() {
 
 	fmt.Print(env.IsExporter())
 	// Output:
-	//
 	// true
 }
 
@@ -134,7 +133,6 @@ func ExampleOverlayEnv_IsExporter_noExporters() {
 
 	fmt.Print(env.IsExporter())
 	// Output:
-	//
 	// false
 }
 
@@ -150,7 +148,6 @@ func ExampleOverlayEnv_IsExporter_programEnvIsAlwaysAnExporter() {
 
 	fmt.Print(env.IsExporter())
 	// Output:
-	//
 	// true
 }
 
@@ -252,7 +249,6 @@ func ExampleOverlayEnv_Unsetenv() {
 	fmt.Printf("ok3 is: %v\n", ok3)
 
 	// Output:
-	//
 	// value is: 100
 	// ok1 is: false
 	// ok2 is: false
