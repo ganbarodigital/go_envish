@@ -2,6 +2,10 @@
 
 ## develop
 
+### Fixes
+
+* Resolve compatibility with 'go get'
+
 ## v4.0.0
 
 Released Friday, 3rd December 2021.

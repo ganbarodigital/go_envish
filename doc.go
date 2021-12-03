@@ -39,7 +39,7 @@ in Golang packages.
 
 It is released under the 3-clause New BSD license. See LICENSE.md for details.
 
-  import envish "github.com/ganbarodigital/go_envish"
+  import envish "github.com/ganbarodigital/go_envish/v4"
 
   env := envish.NewLocalEnv()
 
@@ -81,7 +81,7 @@ Getting Started
 
 Import Envish into your Golang code:
 
-  go get github.com/ganbarodigital/go_envish@v4
+  import envish "github.com/ganbarodigital/go_envish/v4"
 
 Create a copy of your program's environment:
 

@@ -1,4 +1,4 @@
-module github.com/ganbarodigital/go_envish
+module github.com/ganbarodigital/go_envish/v4
 
 go 1.17
 

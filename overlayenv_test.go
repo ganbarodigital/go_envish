@@ -40,7 +40,7 @@ import (
 	"os"
 	"testing"
 
-	envish "github.com/ganbarodigital/go_envish"
+	envish "github.com/ganbarodigital/go_envish/v4"
 	"github.com/stretchr/testify/assert"
 )
 

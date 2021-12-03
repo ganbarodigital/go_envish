@@ -36,7 +36,7 @@
 package envish_test
 
 import (
-	envish "github.com/ganbarodigital/go_envish"
+	envish "github.com/ganbarodigital/go_envish/v4"
 )
 
 const (
