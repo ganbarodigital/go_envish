@@ -40,7 +40,8 @@ import (
 	"strings"
 )
 
-// ProgramEnv works directly on the program's environment
+// ProgramEnv puts helper wrapper functions around your program's
+// environment.
 type ProgramEnv struct {
 }
 
@@ -50,8 +51,8 @@ type ProgramEnv struct {
 //
 // ----------------------------------------------------------------
 
-// NewProgramEnv creates an empty environment store, and populates
-// it with the contents of your program's environment.
+// NewProgramEnv returns an envish environment that works directly with
+// your program's environment.
 func NewProgramEnv() *ProgramEnv {
 	retval := ProgramEnv{}
 
@@ -66,6 +67,7 @@ func NewProgramEnv() *ProgramEnv {
 // ----------------------------------------------------------------
 
 // Environ returns a copy of all entries in the form "key=value".
+// This format is compatible with Golang's built-in packages.
 func (e *ProgramEnv) Environ() []string {
 	return os.Environ()
 }
@@ -77,8 +79,10 @@ func (e *ProgramEnv) Getenv(key string) string {
 	return os.Getenv(key)
 }
 
-// IsExporter returns true if this backing store holds variables that
-// should be exported to external programs
+// IsExporter always returns `true`.
+//
+// It is used by OverlayEnv.Environ to work out which keys and values
+// the OverlayEnv should include in its output.
 func (e *ProgramEnv) IsExporter() bool {
 	return true
 }
@@ -94,8 +98,7 @@ func (e *ProgramEnv) LookupEnv(key string) (string, bool) {
 // MatchVarNames returns a list of variable names that start with the
 // given prefix.
 //
-// This is very useful if you want to support `${PARAM:=word}` shell
-// expansion in your own code.
+// It's a feature needed for `${!prefix*}` string expansion syntax.
 func (e *ProgramEnv) MatchVarNames(prefix string) []string {
 	// our return value
 	retval := []string{}
@@ -118,7 +121,8 @@ func (e *ProgramEnv) MatchVarNames(prefix string) []string {
 //
 // ----------------------------------------------------------------
 
-// Clearenv deletes all entries
+// Clearenv deletes all entries from your program's environment.
+// Use with extreme caution!
 func (e *ProgramEnv) Clearenv() {
 	os.Clearenv()
 }
@@ -129,6 +133,9 @@ func (e *ProgramEnv) Setenv(key, value string) error {
 }
 
 // Unsetenv deletes the variable named by the key.
+//
+// This will remove the given variable from your program's environment.
+// Use with caution!
 func (e *ProgramEnv) Unsetenv(key string) {
 	_ = os.Unsetenv(key)
 }
@@ -139,21 +146,35 @@ func (e *ProgramEnv) Unsetenv(key string) {
 //
 // ----------------------------------------------------------------
 
-// Expand replaces ${var} or $var in the input string.
+// Expand replaces ${var} or $var in the input string, by looking up
+// values from your program's environment.
+//
+// Internally, it uses https://github.com/ganbarodigital/go_shellexpand
+// to do the shell expansion. It supports the vast majority of UNIX shell
+// string expansion operations.
 func (e *ProgramEnv) Expand(fmt string) string {
 	return expand(e, fmt)
 }
 
 // LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
+// that cannot be found.
 func (e *ProgramEnv) LookupHomeDir(username string) (string, bool) {
 	return lookupHomeDir(username)
 }
 
-// RestoreEnvironment writes the given "key=value" pairs into your
-// program's environment
+// ================================================================
 //
-// It does *not* empty the environment.
+// Unique methods
+//
+// ----------------------------------------------------------------
+
+// RestoreEnvironment writes the given "key=value" pairs into your
+// program's environment.
+//
+// It does *not* empty your program's environment first!
+//
+// It was originally added so that our unit tests could put the 'go test'
+// program environment back in place after each test had run.
 func (e *ProgramEnv) RestoreEnvironment(pairs []string) {
 	for _, pair := range pairs {
 		key := GetKeyFromPair(pair)
