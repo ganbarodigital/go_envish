@@ -123,6 +123,9 @@ func (e *LocalEnv) Getenv(key string) string {
 
 // IsExporter returns true if this backing store holds variables that
 // should be exported to external programs.
+//
+// It is used by OverlayEnv.Environ to work out which keys and values
+// the OverlayEnv should include in its output.
 func (e *LocalEnv) IsExporter() bool {
 	return e.isExporter
 }
