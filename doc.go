@@ -48,7 +48,7 @@ It is released under the 3-clause New BSD license. See LICENSE.md for details.
   env.Setenv("EXAMPLE_KEY", "EXAMPLE VALUE")
 
   // pass it into run a child process
-  cmd := exec.Command(...)
+  cmd := exec.Command('example-cmd')
   cmd.Env = env.Environ()
   cmd.Start()
 
