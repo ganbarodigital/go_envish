@@ -39,7 +39,13 @@ import (
 	"sort"
 )
 
-// OverlayEnv works on a collection of variable backing stores
+// OverlayEnv works on a collection of variable backing stores.
+//
+// Use an OverlayEnv to combine one (or more) LocalEnv and a single
+// ProgramEnv into a single logical environment.
+//
+// We do this in https://github.com/ganbarodigital/go_scriptish to
+// emulate local variable support.
 type OverlayEnv struct {
 	envs []Expander
 }
@@ -50,7 +56,16 @@ type OverlayEnv struct {
 //
 // ----------------------------------------------------------------
 
-// NewOverlayEnv creates an empty stack of environment stores
+// NewOverlayEnv builds a single logical environments from the
+// given set of underlying environments.
+//
+// NewOverlayEnv returns a pointer to an OverlayEnv struct. You can use the
+// methods of the OverlayStruct to read from and write to each of these
+// environments.
+//
+// The order of the arguments to NewOverlayEnv matters. The returned
+// OverlayEnv's methods will read from / write to the underlying environments
+// in the order you've given.
 func NewOverlayEnv(envs ...Expander) *OverlayEnv {
 	retval := OverlayEnv{
 		envs: envs,
@@ -66,7 +81,20 @@ func NewOverlayEnv(envs ...Expander) *OverlayEnv {
 //
 // ----------------------------------------------------------------
 
-// Environ returns a copy of all entries in the form "key=value".
+// Environ() returns a copy of all of the variables in your `OverlayEnv`
+// in the form `key=value`. This format is compatible with Golang's
+// built-in packages.
+//
+// When it builds the list, it follows these rules:
+//
+// * it searches the environments in the order you provided them to
+// NewOverlayEnv
+//
+// * it only includes variables from environments where the IsExporter
+// method returns `true`
+//
+// * if the same variable is set in multiple environments, it uses the first
+// value it finds
 func (e *OverlayEnv) Environ() []string {
 	// our return value
 	retval := []string{}
@@ -107,9 +135,13 @@ func (e *OverlayEnv) Environ() []string {
 	return retval
 }
 
-// Getenv returns the value of the variable named by the key.
+// Getenv returns the value of the given variable. If the variable does not
+// exist, it returns `""` (empty string).
 //
-// If the key is not found, an empty string is returned.
+// * it searches the environments in the order you provided them to NewOverlayEnv
+//
+// * if the same variable is set in multiple environments, it uses the first
+// value it finds
 func (e *OverlayEnv) Getenv(key string) string {
 	// do we have a variable backing store to work with?
 	if e == nil {
@@ -128,8 +160,9 @@ func (e *OverlayEnv) Getenv(key string) string {
 	return ""
 }
 
-// IsExporter returns true if this backing store holds variables that
-// should be exported to external programs
+// IsExporter returns `true` if (and only if) any of the environments in
+// the overlay env hold variables that should be exported to external
+// programs.
 func (e *OverlayEnv) IsExporter() bool {
 	// do we have an overlay to work with?
 	if e == nil {
@@ -147,10 +180,13 @@ func (e *OverlayEnv) IsExporter() bool {
 	return false
 }
 
-// LookupEnv returns the value of the variable named by the key.
+// LookupEnv returns the value of the given variable. If the variable does
+// not exist, it returns `"", false`.
 //
-// If the key is not found, an empty string is returned, and the returned
-// boolean is false.
+// * it searches the environments in the order you provided them to NewOverlayEnv
+//
+// * if the same variable is set in multiple environments, it uses the first
+// value it finds
 func (e *OverlayEnv) LookupEnv(key string) (string, bool) {
 	// do we have a stack?
 	if e == nil {
@@ -171,8 +207,12 @@ func (e *OverlayEnv) LookupEnv(key string) (string, bool) {
 // MatchVarNames returns a list of variable names that start with the
 // given prefix.
 //
-// This is very useful if you want to support `${!prefix*}` shell
-// expansion in your own code.
+// It's a feature needed for `${!prefix*}` string expansion syntax.
+//
+// * it searches the environments in the order you provided them to NewOverlayEnv
+//
+// * if the same key is found in multiple environments, it only returns
+// the key once (ie, results are deduped before they are returned)
 func (e *OverlayEnv) MatchVarNames(prefix string) []string {
 	// our return value
 	retval := []string{}
@@ -208,7 +248,11 @@ func (e *OverlayEnv) MatchVarNames(prefix string) []string {
 //
 // ----------------------------------------------------------------
 
-// Clearenv deletes all entries
+// Clearenv deletes all variables in every environment in the OverlayEnv.
+// If your overlay env includes a ProgramEnv, this *WILL* delete all of
+// your program's environment variables.
+//
+// Use with extreme caution!
 func (e *OverlayEnv) Clearenv() {
 	// do we have a stack to work with?
 	if e == nil {
@@ -223,7 +267,16 @@ func (e *OverlayEnv) Clearenv() {
 	// all done
 }
 
-// Setenv sets the value of the variable named by the key.
+// Setenv creates a variable (if it doesn't already exist) or updates its
+// value (if it does exist).
+//
+// * it searches the environments in the order you provided to NewOverlayEnv
+//
+// * if the same variable is set in multiple environments, it updates the
+// first variable it finds
+//
+// * if the variable does not exist, it is always created in the first
+// environment you provided to NewOverlayEnv
 func (e *OverlayEnv) Setenv(key, value string) error {
 	// do we have a stack?
 	if e == nil {
@@ -267,13 +320,29 @@ func (e *OverlayEnv) Unsetenv(key string) {
 //
 // ----------------------------------------------------------------
 
-// Expand replaces ${var} or $var in the input string.
+// Expand will replace `${key}` and `$key` entries in a format string,
+// by looking up values from the environments contained within the OverlayEnv.
+//
+// * it uses the given OverlayEnv's LookupEnv to find the values of variables
+//
+// * it uses the given OverlayEnv's Setenv to set the values of variables
+//
+// * it uses the given OverlayEnv's MatchVarNames to expand variable name prefixes
+//
+// * it uses the given OverlayEnv's LookupHomeDir to expand `~` (tilde)
+//
+// Hopefully, we've got the logic right, and you'll find that your expansions
+// just work the way you'd naturally expect.
+//
+// Internally, it uses https://github.com/ganbarodigital/go_shellexpand to
+// do the shell expansion. It supports the vast majority of UNIX shell
+// string expansion operations.
 func (e *OverlayEnv) Expand(fmt string) string {
 	return expand(e, fmt)
 }
 
 // LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
+// that cannot be found.
 func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
 	return lookupHomeDir(username)
 }
@@ -284,7 +353,15 @@ func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
 //
 // ----------------------------------------------------------------
 
-// GetEnvByID returns the environment you want to work with
+// GetEnvByID returns the requested environment from the given OverlayEnv.
+// ID `0` is the first environment you passed into NewOverlayEnv, ID `1`
+// is the second environment, and so on.
+//
+// If you request an ID that the given OverlayEnv does not have, it returns
+// `nil, false`.
+//
+// GetEnvByID is handy if you don't want to keep separate references to the
+// environments after you've combined them into the OverlayEnv.
 func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool) {
 	// do we have a stack to work with?
 	if e == nil {
