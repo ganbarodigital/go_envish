@@ -33,7 +33,7 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package envish
+package envish_test
 
 import (
 	"os"
@@ -41,6 +41,7 @@ import (
 	"strings"
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -65,7 +66,7 @@ func TestNewLocalEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	actualResult := env.Getenv(testKey)
 
 	// ----------------------------------------------------------------
@@ -83,14 +84,14 @@ func TestNewLocalEnvRunsAnySuppliedOptionFunctions(t *testing.T) {
 
 	assert.Empty(t, os.Getenv(testKey))
 
-	op := func(e *LocalEnv) {
+	op := func(e *envish.LocalEnv) {
 		e.Setenv(testKey, expectedResult)
 	}
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env := NewLocalEnv(op)
+	env := envish.NewLocalEnv(op)
 	actualResult := env.Getenv(testKey)
 
 	// ----------------------------------------------------------------
@@ -111,13 +112,13 @@ func TestLocalEnvImplementsReader(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewLocalEnv()
+	unit := envish.NewLocalEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Reader)
+	_, ok := i.(envish.Reader)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -131,13 +132,13 @@ func TestLocalEnvImplementsWriter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewLocalEnv()
+	unit := envish.NewLocalEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Writer)
+	_, ok := i.(envish.Writer)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -151,13 +152,13 @@ func TestLocalEnvImplementsReaderWriter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewLocalEnv()
+	unit := envish.NewLocalEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReaderWriter)
+	_, ok := i.(envish.ReaderWriter)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -171,13 +172,13 @@ func TestLocalEnvImplementsExpander(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewLocalEnv()
+	unit := envish.NewLocalEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Expander)
+	_, ok := i.(envish.Expander)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -195,7 +196,7 @@ func TestLocalEnvEnvironCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 	expectedResult := []string(nil)
 
 	// ----------------------------------------------------------------
@@ -213,7 +214,7 @@ func TestLocalEnvEnvironCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 	expectedResult := []string{}
 
 	// ----------------------------------------------------------------
@@ -241,7 +242,7 @@ func TestLocalEnvGetenvReturnsFromTheEnvNotTheProgramEnv(t *testing.T) {
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testKey, expectedResult)
 
 	// now remove this from the program's environment
@@ -265,7 +266,7 @@ func TestLocalEnvGetenvCopesWithEmptyStruct(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := ""
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -285,7 +286,7 @@ func TestLocalEnvGetenvCopesWithNilPointer(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := ""
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -302,7 +303,7 @@ func TestLocalEnvIsNotAnExporterByDefault(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	expectedResult := false
 
 	// ----------------------------------------------------------------
@@ -320,7 +321,7 @@ func TestLocalEnvCanBeCreatedAsExporter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewLocalEnv(SetAsExporter)
+	env := envish.NewLocalEnv(envish.SetAsExporter)
 	expectedResult := true
 
 	// ----------------------------------------------------------------
@@ -341,7 +342,7 @@ func TestLocalEnvLookupEnvReturnsTrueIfTheVariableExists(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := "this is my value"
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testKey, expectedResult)
 
 	// ----------------------------------------------------------------
@@ -363,7 +364,7 @@ func TestLocalEnvLookupEnvReturnsFalseIfTheVariableDoesNotExist(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := ""
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Unsetenv(testKey)
 
 	// ----------------------------------------------------------------
@@ -385,7 +386,7 @@ func TestLocalEnvLookupEnvCopesWithEmptyStruct(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := ""
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -406,7 +407,7 @@ func TestLocalEnvLookupEnvCopesWithNilPointer(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := ""
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -425,7 +426,7 @@ func TestLocalEnvMatchVarNamesReturnsAnEmptyListWhenEnvIsEmpty(t *testing.T) {
 	// setup your test
 
 	testPrefix := "TestLocalEnvMatchVarNames"
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -443,7 +444,7 @@ func TestLocalEnvMatchVarNamesIsCaseSensitive(t *testing.T) {
 	// setup your test
 
 	testPrefix := "TestMatchVarName"
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv("testNewLocalEnv", "dummy")
 	env.Setenv(testPrefix+"sOkay", "dummy")
 	env.Setenv(testPrefix+"sAnotherSuffix", "dummy")
@@ -469,7 +470,7 @@ func TestLocalEnvMatchVarNamesOnlyMatchesPrefixes(t *testing.T) {
 	// setup your test
 
 	testPrefix := "TestMatchVarName"
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testPrefix+"sOkay", "dummy")
 	env.Setenv("Dummy"+testPrefix+"sAnotherSuffix", "dummy")
 
@@ -493,7 +494,7 @@ func TestLocalEnvMatchVarNamesMatchesIfKeyEqualsPrefix(t *testing.T) {
 	// setup your test
 
 	testPrefix := "TestMatchVarNames"
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv("testNewLocalEnv", "dummy")
 	env.Setenv(testPrefix, "dummy")
 	env.Setenv(testPrefix+"Okay", "dummy")
@@ -519,7 +520,7 @@ func TestLocalEnvMatchVarNamesCopesWithNilPointer(t *testing.T) {
 	// setup your test
 
 	testPrefix := "TestMatchVarNames"
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	expectedResult := []string{}
 
@@ -539,7 +540,7 @@ func TestLocalEnvMatchVarNamesCopesWithEmptyStruct(t *testing.T) {
 	// setup your test
 
 	testPrefix := "TestMatchVarNames"
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 
 	expectedResult := []string{}
 
@@ -567,7 +568,7 @@ func TestLocalEnvClearenvDeletesAllVariables(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	testData := "this is my value"
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testKey, testData)
 
 	// ----------------------------------------------------------------
@@ -586,7 +587,7 @@ func TestLocalEnvClearenvCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -602,7 +603,7 @@ func TestLocalEnvClearenvCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -621,7 +622,7 @@ func TestLocalEnvGetenvSetenvLookupEnvSupportDollarVars(t *testing.T) {
 	testKey := "$#"
 	expectedResult := "5"
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -647,7 +648,7 @@ func TestLocalEnvSetenvDoesNotChangeTheProgramEnv(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	expectedResult := "this is my value"
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// make sure this key does not exist in the program environment
 	os.Unsetenv(testKey)
@@ -673,7 +674,7 @@ func TestLocalEnvSetenvReturnsErrorForZeroLengthKey(t *testing.T) {
 
 	testKey := ""
 	testData := "this is a test"
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -692,7 +693,7 @@ func TestLocalEnvSetenvReturnsErrorForKeyThatOnlyHasWhitespace(t *testing.T) {
 
 	testKey := "     "
 	testData := "this is a test"
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -712,7 +713,7 @@ func TestLocalEnvSetenvCopesWithEmptyStruct(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	testData := "hello world"
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -732,7 +733,7 @@ func TestLocalEnvSetenvCopesWithNilPointer(t *testing.T) {
 	testKey := "TestNewLocalEnv"
 	testData := "hello world"
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -753,7 +754,7 @@ func TestLocalEnvUnsetenvDeletesAVariable(t *testing.T) {
 	testData := "this is a test"
 	expectedResult := ""
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testKey, testData)
 
 	origLen := env.Length()
@@ -793,7 +794,7 @@ func TestLocalEnvUnsetenvDoesNotChangeProgramEnviron(t *testing.T) {
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -820,7 +821,7 @@ func TestLocalEnvUnsetenvSupportsDollarVars(t *testing.T) {
 	testKey := "$#"
 	expectedResult := ""
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testKey, expectedResult)
 
 	// ----------------------------------------------------------------
@@ -842,7 +843,7 @@ func TestLocalEnvUnsetenvCopesWithEmptyStruct(t *testing.T) {
 
 	testKey := "TestNewLocalEnv"
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -859,7 +860,7 @@ func TestLocalEnvUnsetenvCopesWithNilPointer(t *testing.T) {
 
 	testKey := "TestNewLocalEnv"
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -885,7 +886,7 @@ func TestLocalEnvEntriesFromProgramEnvironmentCanBeUpdated(t *testing.T) {
 	// clean up after ourselves
 	defer os.Unsetenv(testKey)
 
-	env := NewLocalEnv(CopyProgramEnv)
+	env := envish.NewLocalEnv(envish.CopyProgramEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -910,7 +911,7 @@ func TestLocalEnvUpdatedEntriesCanBeUnset(t *testing.T) {
 	testData1 := "this is a test"
 	testData2 := "this is another test"
 
-	env := NewLocalEnv(CopyProgramEnv)
+	env := envish.NewLocalEnv(envish.CopyProgramEnv)
 
 	env.Setenv(testKey1, testData1)
 	env.Setenv(testKey2, testData1)
@@ -949,7 +950,7 @@ func TestLocalEnvExpandCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -968,7 +969,7 @@ func TestLocalEnvExpandCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var env LocalEnv
+	var env envish.LocalEnv
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -997,7 +998,7 @@ func TestLocalEnvExpandUsesEntriesInTheTemporaryEnvironment(t *testing.T) {
 
 	expectedResult := "hello this is another test"
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	env.Setenv(testKey, testValue2)
 
 	// ----------------------------------------------------------------
@@ -1017,7 +1018,7 @@ func TestLocalEnvExpandReturnsOriginalStringIfExpansionFails(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// the search pattern is invalid, and this will trigger an error
 	expectedResult := "hello ${TestSequenceKey#abc[}"
@@ -1037,7 +1038,7 @@ func TestLocalEnvLengthCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := LocalEnv{}
+	env := envish.LocalEnv{}
 	expectedResult := 0
 
 	// ----------------------------------------------------------------
@@ -1055,7 +1056,7 @@ func TestLocalEnvLengthCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var env *LocalEnv = nil
+	var env *envish.LocalEnv = nil
 	expectedResult := 0
 
 	// ----------------------------------------------------------------
@@ -1077,7 +1078,7 @@ func TestLocalEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
 	expectedResult, err := os.UserHomeDir()
 	assert.Nil(t, err)
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1099,7 +1100,7 @@ func TestLocalEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
 	assert.Nil(t, err)
 	expectedResult := details.HomeDir
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1117,7 +1118,7 @@ func TestLocalEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewLocalEnv()
+	env := envish.NewLocalEnv()
 	expectedResult := ""
 
 	// ----------------------------------------------------------------

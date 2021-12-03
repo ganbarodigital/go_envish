@@ -33,13 +33,14 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package envish
+package envish_test
 
 import (
 	"os"
 	"os/user"
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -53,19 +54,21 @@ func TestNewOverlayEnvReturnsStackOfEnvironments(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	stack := NewOverlayEnv(localEnv, progEnv)
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Same(t, localEnv, stack.envs[0])
-	assert.Same(t, progEnv, stack.envs[1])
+	stack0, _ := stack.GetEnvByID(0)
+	stack1, _ := stack.GetEnvByID(1)
+	assert.Same(t, localEnv, stack0)
+	assert.Same(t, progEnv, stack1)
 }
 
 // ================================================================
@@ -80,16 +83,16 @@ func TestOverlayEnvImplementsReader(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	unit := NewOverlayEnv(localEnv, progEnv)
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
+	unit := envish.NewOverlayEnv(localEnv, progEnv)
 
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Reader)
+	_, ok := i.(envish.Reader)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -103,16 +106,16 @@ func TestOverlayEnvImplementsWriter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	unit := NewOverlayEnv(localEnv, progEnv)
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
+	unit := envish.NewOverlayEnv(localEnv, progEnv)
 
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Writer)
+	_, ok := i.(envish.Writer)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -126,16 +129,16 @@ func TestOverlayEnvImplementsReaderWriter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	unit := NewOverlayEnv(localEnv, progEnv)
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
+	unit := envish.NewOverlayEnv(localEnv, progEnv)
 
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReaderWriter)
+	_, ok := i.(envish.ReaderWriter)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -149,16 +152,16 @@ func TestOverlayEnvImplementsExpander(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	unit := NewOverlayEnv(localEnv, progEnv)
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
+	unit := envish.NewOverlayEnv(localEnv, progEnv)
 
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Expander)
+	_, ok := i.(envish.Expander)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -172,16 +175,16 @@ func TestOverlayEnvImplementsShellEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	unit := NewOverlayEnv(localEnv, progEnv)
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
+	unit := envish.NewOverlayEnv(localEnv, progEnv)
 
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Writer)
+	_, ok := i.(envish.Writer)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -199,10 +202,10 @@ func TestOverlayEnvGetEnvByIDReturnsFromTheStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
 
-	stack := NewOverlayEnv(localEnv, progEnv)
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -223,10 +226,10 @@ func TestOverlayEnvGetEnvByIDReturnsNilIfIndexTooLarge(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
 
-	stack := NewOverlayEnv(localEnv, progEnv)
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -244,10 +247,10 @@ func TestOverlayEnvGetEnvByIDReturnsNilIfIndexTooSmall(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
 
-	stack := NewOverlayEnv(localEnv, progEnv)
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -265,7 +268,7 @@ func TestOverlayEnvGetEnvByIDReturnsCopesWithNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -283,7 +286,7 @@ func TestOverlayEnvGetEnvByIDReturnsCopesWithEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -309,10 +312,10 @@ func TestOverlayEnvironReturnsAllVariablesFromEnvsThatAreExporting(t *testing.T)
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM2.1", "trout")
 	env2.Setenv("PARAM2.2", "haddock")
 
@@ -322,7 +325,7 @@ func TestOverlayEnvironReturnsAllVariablesFromEnvsThatAreExporting(t *testing.T)
 		"PARAM2.1=trout",
 		"PARAM2.2=haddock",
 	}
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -341,10 +344,10 @@ func TestOverlayEnvironSkipsOverEnvsThatAreNotExporting(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv()
+	env1 := envish.NewLocalEnv()
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM2.1", "trout")
 	env2.Setenv("PARAM2.2", "haddock")
 
@@ -352,7 +355,7 @@ func TestOverlayEnvironSkipsOverEnvsThatAreNotExporting(t *testing.T) {
 		"PARAM2.1=trout",
 		"PARAM2.2=haddock",
 	}
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -371,10 +374,10 @@ func TestOverlayEnvironGivesPrecidenceToEarlierStackEntries(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM2.1", "haddock")
 
@@ -383,7 +386,7 @@ func TestOverlayEnvironGivesPrecidenceToEarlierStackEntries(t *testing.T) {
 		"PARAM1.2=world",
 		"PARAM2.1=haddock",
 	}
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -401,7 +404,7 @@ func TestOverlayEnvironReturnsEmptyListIfNilPointer(t *testing.T) {
 	// setup your test
 
 	expectedResult := []string{}
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -419,7 +422,7 @@ func TestOverlayEnvironReturnsEmptyListIfEmptyStruct(t *testing.T) {
 	// setup your test
 
 	expectedResult := []string{}
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -438,15 +441,15 @@ func TestOverlayEnvGetenvSearchesTheStack(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM2.1", "trout")
 	env2.Setenv("PARAM2.2", "haddock")
 
 	expectedResult := "haddock"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -465,15 +468,15 @@ func TestOverlayEnvGetenvGivesPrecidenceToEarlierStackEntries(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
 	expectedResult := "world"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -492,15 +495,15 @@ func TestOverlayEnvGetenvReturnsEmptyStringIfVariableNotFound(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
 	expectedResult := ""
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -518,7 +521,7 @@ func TestOverlayEnvGetenvReturnsEmptyStringIfNilPointer(t *testing.T) {
 	// setup your test
 
 	expectedResult := ""
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -536,7 +539,7 @@ func TestOverlayEnvGetenvReturnsEmptyStringIfEmptyStruct(t *testing.T) {
 	// setup your test
 
 	expectedResult := ""
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -553,10 +556,10 @@ func TestOverlayEnvIsExporterReturnsTrueIfAnyEnvIsAnExporter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
 
-	stack := NewOverlayEnv(localEnv, progEnv)
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -573,10 +576,10 @@ func TestOverlayEnvIsExporterReturnsFalseIfAllEnvsAreNotExporters(t *testing.T) 
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewLocalEnv()
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewLocalEnv()
 
-	stack := NewOverlayEnv(localEnv, progEnv)
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -593,7 +596,7 @@ func TestOverlayEnvIsExporterReturnsFalseIfNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -610,7 +613,7 @@ func TestOverlayEnvIsExporterReturnsFalseIfEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -629,15 +632,15 @@ func TestOverlayEnvLookupEnvSearchesTheStack(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM2.1", "trout")
 	env2.Setenv("PARAM2.2", "haddock")
 
 	expectedResult := "haddock"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -657,15 +660,15 @@ func TestOverlayEnvLookupEnvGivesPrecidenceToEarlierStackEntries(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
 	expectedResult := "world"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -685,15 +688,15 @@ func TestOverlayEnvLookupEnvReturnsEmptyStringIfVariableNotFound(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
 	expectedResult := ""
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -712,7 +715,7 @@ func TestOverlayEnvLookupEnvReturnsEmptyStringIfNilPointer(t *testing.T) {
 	// setup your test
 
 	expectedResult := ""
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -731,7 +734,7 @@ func TestOverlayEnvLookupEnvReturnsEmptyStringIfEmptyStruct(t *testing.T) {
 	// setup your test
 
 	expectedResult := ""
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -751,10 +754,10 @@ func TestOverlayEnvMatchVarNamesSearchesTheStack(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM2.1", "trout")
 	env2.Setenv("PARAM2.2", "haddock")
 
@@ -764,7 +767,7 @@ func TestOverlayEnvMatchVarNamesSearchesTheStack(t *testing.T) {
 		"PARAM2.1",
 		"PARAM2.2",
 	}
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -783,10 +786,10 @@ func TestOverlayEnvMatchVarNamesGivesPrecidenceToEarlierStackEntries(t *testing.
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
@@ -794,7 +797,7 @@ func TestOverlayEnvMatchVarNamesGivesPrecidenceToEarlierStackEntries(t *testing.
 		"PARAM1.1",
 		"PARAM1.2",
 	}
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -812,7 +815,7 @@ func TestOverlayEnvMatchVarNamesReturnsEmptyListIfNilPointer(t *testing.T) {
 	// setup your test
 
 	expectedResult := []string{}
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -830,7 +833,7 @@ func TestOverlayEnvMatchVarNamesReturnsEmptyListIfEmptyStruct(t *testing.T) {
 	// setup your test
 
 	expectedResult := []string{}
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -853,9 +856,9 @@ func TestOverlayEnvClearenvEmptiesAllEnvironments(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	localEnv := NewLocalEnv()
-	progEnv := NewProgramEnv()
-	stack := NewOverlayEnv(localEnv, progEnv)
+	localEnv := envish.NewLocalEnv()
+	progEnv := envish.NewProgramEnv()
+	stack := envish.NewOverlayEnv(localEnv, progEnv)
 
 	// we'll need to put the program's environment back afterwards!
 	origEnviron := os.Environ()
@@ -880,7 +883,7 @@ func TestOverlayEnvClearenvDoesNothingIfNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -899,7 +902,7 @@ func TestOverlayEnvClearenvDoesNothingIfEmptyStruct(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -920,16 +923,16 @@ func TestOverlayEnvSetenvUpdatesExistingEntriesInStackOrder(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
 	expectedResult1 := "there"
 	expectedResult2 := "haddock"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -951,15 +954,15 @@ func TestOverlayEnvSetenvCreatesNewEntriesInFirstStackMember(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
 	expectedResult := "there"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -977,7 +980,7 @@ func TestOverlayEnvSetenvReturnsErrorIfNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	expectedResult := "nil pointer to environment store passed to OverlayEnv.Setenv"
 
@@ -997,7 +1000,7 @@ func TestOverlayEnvSetenvReturnsErrorIfEmptyStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	expectedResult := "overlay env is empty; OverlayEnv.Setenv"
 
@@ -1019,14 +1022,14 @@ func TestOverlayEnvUnsetenvUpdatesEveryEntryInTheStack(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1.1", "hello")
 	env1.Setenv("PARAM1.2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1.1", "trout")
 	env2.Setenv("PARAM1.2", "haddock")
 
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1046,7 +1049,7 @@ func TestOverlayEnvUnsetenvDoesNothingIfNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	var stack *OverlayEnv = nil
+	var stack *envish.OverlayEnv = nil
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1063,7 +1066,7 @@ func TestOverlayEnvUnsetenvDoesNothingIfEmptyStack(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	stack := OverlayEnv{}
+	stack := envish.OverlayEnv{}
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1086,15 +1089,15 @@ func TestOverlayExpandSearchesTheStack(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1_1", "hello")
 	env1.Setenv("PARAM1_2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM2_1", "trout")
 	env2.Setenv("PARAM1_2", "haddock")
 
 	expectedResult := "hello, world trout"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1113,15 +1116,15 @@ func TestOverlayExpandReturnsOriginalStringIfExpansionFails(t *testing.T) {
 
 	// we don't use a program environment here because its contents are
 	// unpredictable
-	env1 := NewLocalEnv(SetAsExporter)
+	env1 := envish.NewLocalEnv(envish.SetAsExporter)
 	env1.Setenv("PARAM1_1", "hello")
 	env1.Setenv("PARAM1_2", "world")
-	env2 := NewLocalEnv(SetAsExporter)
+	env2 := envish.NewLocalEnv(envish.SetAsExporter)
 	env2.Setenv("PARAM1_1", "trout")
 	env2.Setenv("PARAM1_2", "haddock")
 
 	expectedResult := "${PARAM1_1#abc[}, ${PARAM1_2}"
-	stack := NewOverlayEnv(env1, env2)
+	stack := envish.NewOverlayEnv(env1, env2)
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1141,7 +1144,7 @@ func TestOverlayEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
 	expectedResult, err := os.UserHomeDir()
 	assert.Nil(t, err)
 
-	env := NewOverlayEnv()
+	env := envish.NewOverlayEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1163,7 +1166,7 @@ func TestOverlayEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
 	assert.Nil(t, err)
 	expectedResult := details.HomeDir
 
-	env := NewOverlayEnv()
+	env := envish.NewOverlayEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -1181,7 +1184,7 @@ func TestOverlayEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewOverlayEnv()
+	env := envish.NewOverlayEnv()
 	expectedResult := ""
 
 	// ----------------------------------------------------------------

@@ -33,11 +33,12 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package envish
+package envish_test
 
 import (
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -45,7 +46,7 @@ func TestErrEmptyKey(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrEmptyKey{}
+	testData := envish.ErrEmptyKey{}
 	expectedResult := "zero-length key, or key only contains whitespace"
 
 	// ----------------------------------------------------------------
@@ -63,7 +64,7 @@ func TestErrEmptyOverlayEnv(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrEmptyOverlayEnv{"TestErrEmptyOverlayEnv"}
+	testData := envish.ErrEmptyOverlayEnv{"TestErrEmptyOverlayEnv"}
 	expectedResult := "overlay env is empty; TestErrEmptyOverlayEnv"
 
 	// ----------------------------------------------------------------
@@ -81,7 +82,7 @@ func TestErrNilPointer(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	testData := ErrNilPointer{"TestErrNilPointer"}
+	testData := envish.ErrNilPointer{"TestErrNilPointer"}
 	expectedResult := "nil pointer to environment store passed to TestErrNilPointer"
 
 	// ----------------------------------------------------------------

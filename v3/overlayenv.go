@@ -86,7 +86,7 @@ func (e *OverlayEnv) Environ() []string {
 
 		pairs := env.Environ()
 		for _, pair := range pairs {
-			key := getKeyFromPair(pair)
+			key := GetKeyFromPair(pair)
 			_, ok := foundPairs[key]
 			if !ok {
 				foundPairs[key] = pair

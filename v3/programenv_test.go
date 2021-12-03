@@ -33,13 +33,14 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package envish
+package envish_test
 
 import (
 	"os"
 	"os/user"
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -56,7 +57,7 @@ func TestNewProgramEnvReturnsAnEmptyEnvironmentStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -76,13 +77,13 @@ func TestProgramEnvImplementsReader(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewProgramEnv()
+	unit := envish.NewProgramEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Reader)
+	_, ok := i.(envish.Reader)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -96,13 +97,13 @@ func TestProgramEnvImplementsWriter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewProgramEnv()
+	unit := envish.NewProgramEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Writer)
+	_, ok := i.(envish.Writer)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -116,13 +117,13 @@ func TestProgramEnvImplementsReaderWriter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewProgramEnv()
+	unit := envish.NewProgramEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(ReaderWriter)
+	_, ok := i.(envish.ReaderWriter)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -136,13 +137,13 @@ func TestProgramEnvImplementsExpander(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	unit := NewProgramEnv()
+	unit := envish.NewProgramEnv()
 	var i interface{} = unit
 
 	// ----------------------------------------------------------------
 	// perform the change
 
-	_, ok := i.(Expander)
+	_, ok := i.(envish.Expander)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -160,7 +161,7 @@ func TestProgramEnvGetenvRetrievesAValue(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	env.Setenv("PARAM1", "foo")
 	expectedResult := "foo"
 
@@ -182,7 +183,7 @@ func TestProgramEnvGetenvReturnsEmptyStringWhenVariableNotSet(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
@@ -200,7 +201,7 @@ func TestProgramEnvIsAnExporter(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -217,7 +218,7 @@ func TestProgramEnvLookupEnvReturnsTrueWhenVarExists(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	env.Setenv("PARAM1", "foo")
 	expectedResult := "foo"
 
@@ -240,7 +241,7 @@ func TestProgramEnvLookupEnvReturnsFalseWhenVarDoesNotExist(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	expectedResult := ""
 
 	// ----------------------------------------------------------------
@@ -259,7 +260,7 @@ func TestProgramEnvMatchVarNamesReturnsListOfKeys(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	env.Setenv("TestProgramEnv_PARAM1", "foo")
 	env.Setenv("TestProgramEnv_PARAM2", "bar")
 	expectedResult := []string{
@@ -295,7 +296,7 @@ func TestProgramEnvClearenvEmptiesYourProgramsEnvironment(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 
 	origEnviron := env.Environ()
 	defer env.RestoreEnvironment(origEnviron)
@@ -315,7 +316,7 @@ func TestProgramEnvSetenvUpdatesTheProgramEnvironment(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	expectedResult := "foo"
 
 	// clean up after ourselves
@@ -338,7 +339,7 @@ func TestProgramEnvUnsetenvUpdatesTheProgramEnvironment(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	expectedResult := ""
 
 	env.Setenv("PARAM1", "foo")
@@ -369,7 +370,7 @@ func TestProgramEnvExpandPerformsStringExpansion(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	env.Setenv("PARAM1", "foo")
 	expectedResult := "FOO"
 
@@ -391,7 +392,7 @@ func TestProgramEnvExpandReturnsOriginalStringIfExpansionGeneratesAnError(t *tes
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 
 	// we need to set this, to make sure an attempt is made to compile
 	// the invalid pattern
@@ -420,7 +421,7 @@ func TestProgramEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
 	expectedResult, err := os.UserHomeDir()
 	assert.Nil(t, err)
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -442,7 +443,7 @@ func TestProgramEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
 	assert.Nil(t, err)
 	expectedResult := details.HomeDir
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 
 	// ----------------------------------------------------------------
 	// perform the change
@@ -460,7 +461,7 @@ func TestProgramEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
 	// ----------------------------------------------------------------
 	// setup your test
 
-	env := NewProgramEnv()
+	env := envish.NewProgramEnv()
 	expectedResult := ""
 
 	// ----------------------------------------------------------------

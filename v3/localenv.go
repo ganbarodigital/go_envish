@@ -109,8 +109,8 @@ func (e *LocalEnv) Getenv(key string) string {
 	// yes we do
 	i := e.findPairIndex(key)
 	if i >= 0 {
-		key := getKeyFromPair(e.pairs[i])
-		return getValueFromPair(e.pairs[i], key)
+		key := GetKeyFromPair(e.pairs[i])
+		return GetValueFromPair(e.pairs[i], key)
 	}
 
 	// not found
@@ -136,8 +136,8 @@ func (e *LocalEnv) LookupEnv(key string) (string, bool) {
 	// yes we do
 	i := e.findPairIndex(key)
 	if i >= 0 {
-		key := getKeyFromPair(e.pairs[i])
-		return getValueFromPair(e.pairs[i], key), true
+		key := GetKeyFromPair(e.pairs[i])
+		return GetValueFromPair(e.pairs[i], key), true
 	}
 
 	// not found
@@ -161,7 +161,7 @@ func (e *LocalEnv) MatchVarNames(prefix string) []string {
 	// yes we do
 	for i := range e.pairs {
 		if strings.HasPrefix(e.pairs[i], prefix) {
-			retval = append(retval, getKeyFromPair(e.pairs[i]))
+			retval = append(retval, GetKeyFromPair(e.pairs[i]))
 		}
 	}
 

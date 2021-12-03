@@ -104,7 +104,7 @@ func (e *ProgramEnv) MatchVarNames(prefix string) []string {
 	pairs := os.Environ()
 	for i := range pairs {
 		if strings.HasPrefix(pairs[i], prefix) {
-			retval = append(retval, getKeyFromPair(pairs[i]))
+			retval = append(retval, GetKeyFromPair(pairs[i]))
 		}
 	}
 
@@ -156,8 +156,8 @@ func (e *ProgramEnv) LookupHomeDir(username string) (string, bool) {
 // It does *not* empty the environment.
 func (e *ProgramEnv) RestoreEnvironment(pairs []string) {
 	for _, pair := range pairs {
-		key := getKeyFromPair(pair)
-		value := getValueFromPair(pair, key)
+		key := GetKeyFromPair(pair)
+		value := GetValueFromPair(pair, key)
 
 		e.Setenv(key, value)
 	}

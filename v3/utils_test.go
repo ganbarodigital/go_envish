@@ -33,11 +33,12 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package envish
+package envish_test
 
 import (
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -51,7 +52,7 @@ func TestGetKeyFromPairReturnsKey(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := getKeyFromPair(testData)
+	actualResult := envish.GetKeyFromPair(testData)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -69,7 +70,7 @@ func TestGetKeyFromPairSupportsVarsThatStartWithEqualsSign(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := getKeyFromPair(testData)
+	actualResult := envish.GetKeyFromPair(testData)
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -87,7 +88,7 @@ func TestGetValueFromPairReturnsValue(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := getValueFromPair(testData, "PARAM1")
+	actualResult := envish.GetValueFromPair(testData, "PARAM1")
 
 	// ----------------------------------------------------------------
 	// test the results
@@ -105,7 +106,7 @@ func TestGetValueFromPairSupportsEmptyValue(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	actualResult := getValueFromPair(testData, "PARAM1")
+	actualResult := envish.GetValueFromPair(testData, "PARAM1")
 
 	// ----------------------------------------------------------------
 	// test the results

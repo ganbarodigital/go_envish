@@ -39,12 +39,14 @@ import (
 	"strings"
 )
 
-func getKeyFromPair(pair string) string {
+// GetKeyFromPair returns the `KEY` from a string `KEY=VALUE`.
+func GetKeyFromPair(pair string) string {
 	// environment variables on Windows can start with an '=' sign
 	pos := strings.Index(pair[1:], "=")
 	return pair[:pos+1]
 }
 
-func getValueFromPair(pair string, key string) string {
+// GetValueFromPair returns the `VALUE` from a string `KEY=VALUE`.
+func GetValueFromPair(pair string, key string) string {
 	return pair[len(key)+1:]
 }

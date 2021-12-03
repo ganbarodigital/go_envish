@@ -47,19 +47,19 @@ func (e ErrEmptyKey) Error() string {
 
 // ErrEmptyOverlayEnv is returned whenever you call a method on an empty EnvStack
 type ErrEmptyOverlayEnv struct {
-	method string
+	Method string
 }
 
 func (e ErrEmptyOverlayEnv) Error() string {
-	return fmt.Sprintf("overlay env is empty; %s", e.method)
+	return fmt.Sprintf("overlay env is empty; %s", e.Method)
 }
 
 // ErrNilPointer is returned whenever you call a method on the Env struct
 // with a nil pointer
 type ErrNilPointer struct {
-	method string
+	Method string
 }
 
 func (e ErrNilPointer) Error() string {
-	return fmt.Sprintf("nil pointer to environment store passed to %s", e.method)
+	return fmt.Sprintf("nil pointer to environment store passed to %s", e.Method)
 }

@@ -33,12 +33,13 @@
 // ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 // POSSIBILITY OF SUCH DAMAGE.
 
-package envish
+package envish_test
 
 import (
 	"os"
 	"testing"
 
+	envish "github.com/ganbarodigital/go_envish/v3"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -57,7 +58,7 @@ func TestCopyProgramEnvCopiesTheProgramsEnvironmentIntoTheStore(t *testing.T) {
 	// ----------------------------------------------------------------
 	// perform the change
 
-	env := NewLocalEnv(CopyProgramEnv)
+	env := envish.NewLocalEnv(envish.CopyProgramEnv)
 	actualResult := env.Getenv(testKey)
 
 	// ----------------------------------------------------------------
