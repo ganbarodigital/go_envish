@@ -341,12 +341,6 @@ func (e *OverlayEnv) Expand(fmt string) string {
 	return expand(e, fmt)
 }
 
-// LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found.
-func (e *OverlayEnv) LookupHomeDir(username string) (string, bool) {
-	return lookupHomeDir(username)
-}
-
 // ================================================================
 //
 // Struct-unique functions

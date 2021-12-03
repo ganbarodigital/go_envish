@@ -37,7 +37,6 @@ package envish_test
 
 import (
 	"os"
-	"os/user"
 	"strings"
 	"testing"
 
@@ -1069,66 +1068,4 @@ func TestLocalEnvLengthCopesWithNilPointer(t *testing.T) {
 
 	assert.Equal(t, expectedResult, actualResult)
 
-}
-
-func TestLocalEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult, err := os.UserHomeDir()
-	assert.Nil(t, err)
-
-	env := envish.NewLocalEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	details, err := user.Lookup("root")
-	assert.Nil(t, err)
-	expectedResult := details.HomeDir
-
-	env := envish.NewLocalEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("root")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestLocalEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := envish.NewLocalEnv()
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("this user does not exist")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.False(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
 }

@@ -42,8 +42,4 @@ type Expander interface {
 
 	// Expand replaces ${var} or $var in the input string.
 	Expand(fmt string) string
-
-	// LookupHomeDir retrieves the given user's home directory, or false if
-	// that cannot be found
-	LookupHomeDir(username string) (string, bool)
 }

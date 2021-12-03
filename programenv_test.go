@@ -37,7 +37,6 @@ package envish_test
 
 import (
 	"os"
-	"os/user"
 	"testing"
 
 	envish "github.com/ganbarodigital/go_envish"
@@ -411,67 +410,5 @@ func TestProgramEnvExpandReturnsOriginalStringIfExpansionGeneratesAnError(t *tes
 	// ----------------------------------------------------------------
 	// test the results
 
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestProgramEnvLookupHomeDirReturnsCurrentUserHomeDir(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	expectedResult, err := os.UserHomeDir()
-	assert.Nil(t, err)
-
-	env := envish.NewProgramEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestProgramEnvLookupHomeDirReturnsRootUserHomeDir(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	details, err := user.Lookup("root")
-	assert.Nil(t, err)
-	expectedResult := details.HomeDir
-
-	env := envish.NewProgramEnv()
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("root")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.True(t, ok)
-	assert.Equal(t, expectedResult, actualResult)
-}
-
-func TestProgramEnvLookupHomeDirReturnsFalseIfUserDoesNotExist(t *testing.T) {
-	// ----------------------------------------------------------------
-	// setup your test
-
-	env := envish.NewProgramEnv()
-	expectedResult := ""
-
-	// ----------------------------------------------------------------
-	// perform the change
-
-	actualResult, ok := env.LookupHomeDir("this user does not exist")
-
-	// ----------------------------------------------------------------
-	// test the results
-
-	assert.False(t, ok)
 	assert.Equal(t, expectedResult, actualResult)
 }

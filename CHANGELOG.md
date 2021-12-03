@@ -2,6 +2,14 @@
 
 ## develop
 
+### Backwards-Compatibility Breaks
+
+* Removed `LookupHomeDir()` from the various interfaces and structs
+  - removed `Expander.LookupHomeDir()`
+  - removed `LocalEnv.LookupHomeDir()`
+  - removed `OverlayEnv.LookupHomeDir()`
+  - removed `ProgramEnv.LookupHomeDir()`
+
 ### New
 
 * Added LookupHomeDir() as a standalone util

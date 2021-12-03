@@ -36,8 +36,6 @@
 package envish
 
 import (
-	"os/user"
-
 	shellexpand "github.com/ganbarodigital/go_shellexpand"
 )
 
@@ -51,7 +49,7 @@ func expand(e Expander, fmt string) string {
 	// yes we do
 	cb := shellexpand.ExpansionCallbacks{
 		AssignToVar:   e.Setenv,
-		LookupHomeDir: e.LookupHomeDir,
+		LookupHomeDir: LookupHomeDir,
 		LookupVar:     e.LookupEnv,
 		MatchVarNames: e.MatchVarNames,
 	}
@@ -66,23 +64,4 @@ func expand(e Expander, fmt string) string {
 
 	// yes it did :)
 	return retval
-}
-
-// lookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found
-func lookupHomeDir(username string) (string, bool) {
-	var details *user.User
-	var err error
-
-	if username == "" {
-		details, err = user.Current()
-	} else {
-		details, err = user.Lookup(username)
-	}
-
-	if err != nil {
-		return "", false
-	}
-
-	return details.HomeDir, true
 }

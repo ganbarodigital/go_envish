@@ -450,7 +450,7 @@ func main() {
 false
 ```
 
-#### func (*LocalEnv) [Length](/localenv.go#L285)
+#### func (*LocalEnv) [Length](/localenv.go#L277)
 
 `func (e *LocalEnv) Length() int`
 
@@ -510,15 +510,6 @@ func main() {
 }
 
 ```
-
-#### func (*LocalEnv) [LookupHomeDir](/localenv.go#L274)
-
-`func (e *LocalEnv) LookupHomeDir(username string) (string, bool)`
-
-LookupHomeDir returns the full path to the given user's home directory,
-or false if that cannot be found.
-
-Note: it does not use the value of $HOME at all.
 
 #### func (*LocalEnv) [MatchVarNames](/localenv.go#L158)
 
@@ -810,7 +801,7 @@ func main() {
 
 ```
 
-#### func (*OverlayEnv) [GetEnvByID](/overlayenv.go#L365)
+#### func (*OverlayEnv) [GetEnvByID](/overlayenv.go#L359)
 
 `func (e *OverlayEnv) GetEnvByID(id int) (Expander, bool)`
 
@@ -891,7 +882,7 @@ func main() {
 
 ```
 
-#### func (*OverlayEnv) [GetTopMostEnv](/overlayenv.go#L384)
+#### func (*OverlayEnv) [GetTopMostEnv](/overlayenv.go#L378)
 
 `func (e *OverlayEnv) GetTopMostEnv() (Expander, error)`
 
@@ -1093,13 +1084,6 @@ func main() {
 }
 
 ```
-
-#### func (*OverlayEnv) [LookupHomeDir](/overlayenv.go#L346)
-
-`func (e *OverlayEnv) LookupHomeDir(username string) (string, bool)`
-
-LookupHomeDir retrieves the given user's home directory, or false if
-that cannot be found.
 
 #### func (*OverlayEnv) [MatchVarNames](/overlayenv.go#L216)
 
@@ -1438,13 +1422,6 @@ func main() {
 
 ```
 
-#### func (*ProgramEnv) [LookupHomeDir](/programenv.go#L161)
-
-`func (e *ProgramEnv) LookupHomeDir(username string) (string, bool)`
-
-LookupHomeDir retrieves the given user's home directory, or false if
-that cannot be found.
-
 #### func (*ProgramEnv) [MatchVarNames](/programenv.go#L102)
 
 `func (e *ProgramEnv) MatchVarNames(prefix string) []string`
@@ -1474,7 +1451,7 @@ func main() {
 
 ```
 
-#### func (*ProgramEnv) [RestoreEnvironment](/programenv.go#L178)
+#### func (*ProgramEnv) [RestoreEnvironment](/programenv.go#L172)
 
 `func (e *ProgramEnv) RestoreEnvironment(pairs []string)`
 

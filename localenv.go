@@ -267,14 +267,6 @@ func (e *LocalEnv) Expand(fmt string) string {
 	return expand(e, fmt)
 }
 
-// LookupHomeDir returns the full path to the given user's home directory,
-// or false if that cannot be found.
-//
-// Note: it does not use the value of $HOME at all.
-func (e *LocalEnv) LookupHomeDir(username string) (string, bool) {
-	return lookupHomeDir(username)
-}
-
 // ================================================================
 //
 // Internal helpers

@@ -156,12 +156,6 @@ func (e *ProgramEnv) Expand(fmt string) string {
 	return expand(e, fmt)
 }
 
-// LookupHomeDir retrieves the given user's home directory, or false if
-// that cannot be found.
-func (e *ProgramEnv) LookupHomeDir(username string) (string, bool) {
-	return lookupHomeDir(username)
-}
-
 // ================================================================
 //
 // Unique methods
