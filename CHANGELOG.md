@@ -2,6 +2,10 @@
 
 ## develop
 
+## v4.0.0
+
+Released Friday, 3rd December 2021.
+
 ### Backwards-Compatibility Breaks
 
 * Removed `LookupHomeDir()` from the various interfaces and structs
