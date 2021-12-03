@@ -18,6 +18,11 @@
   - we may also publish this as a separate package one day
 * Added OverlayEnv.Export()
 
+### Docs
+
+* Added `godoc` compatibility
+* README is now generated from the `godoc` output
+
 ## v3.0.1
 
 Released Wednesday, 30th October 2019.
