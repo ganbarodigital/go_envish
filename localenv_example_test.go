@@ -39,7 +39,7 @@ import (
 	"fmt"
 	"os/exec"
 
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func ExampleLocalEnv() {

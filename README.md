@@ -6,7 +6,7 @@ in Golang packages.
 It is released under the 3-clause New BSD license. See LICENSE.md for details.
 
 ```go
-import envish "github.com/ganbarodigital/go_envish/v3"
+import envish "github.com/ganbarodigital/go_envish"
 
 env := envish.NewLocalEnv()
 
@@ -75,11 +75,8 @@ for the child process `apt-get`.
 Import Envish into your Golang code:
 
 ```go
-import envish "github.com/ganbarodigital/go_envish/v3"
+go get github.com/ganbarodigital/go_envish@v4
 ```
-
-Don't forget that `v3` on the end of the import, or you'll get an older
-version of this package!
 
 Create a copy of your program's environment:
 
@@ -169,7 +166,7 @@ with a nil pointer
 `type Expander interface { ... }`
 
 Expander is the interface that wraps a variable backing store that
-also supports string expansion
+also supports string expansion.
 
 ### type [LocalEnv](/localenv.go#L43)
 
@@ -182,7 +179,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -209,7 +206,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -232,7 +229,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -259,7 +256,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -293,7 +290,7 @@ environment remains unchanged.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -317,7 +314,7 @@ This is compatible with any Golang standard library, such as `os/exec`.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 	"os/exec"
 )
 
@@ -346,7 +343,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -372,7 +369,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -401,7 +398,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -435,7 +432,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -470,7 +467,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -508,7 +505,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -534,7 +531,7 @@ environment remains unchanged.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -557,7 +554,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -584,7 +581,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -611,7 +608,7 @@ Unsetenv deletes the variable named by the key.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -655,7 +652,7 @@ in the order you've given.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -706,7 +703,7 @@ value it finds
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 	"os/exec"
 )
 
@@ -766,7 +763,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -837,7 +834,7 @@ environments after you've combined them into the OverlayEnv.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 const (
@@ -878,7 +875,7 @@ If we don't have that environment, we return a suitable error.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -914,7 +911,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -945,7 +942,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -978,7 +975,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1010,7 +1007,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1049,7 +1046,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1094,7 +1091,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1133,7 +1130,7 @@ environment you provided to NewOverlayEnv
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1177,7 +1174,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1245,7 +1242,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1274,7 +1271,7 @@ This format is compatible with Golang's built-in packages.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 	"os/exec"
 )
 
@@ -1310,7 +1307,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1336,7 +1333,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1363,7 +1360,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1397,7 +1394,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1433,7 +1430,7 @@ package main
 
 import (
 	"fmt"
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1464,7 +1461,7 @@ program environment back in place after each test had run.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 )
 
 func main() {
@@ -1493,7 +1490,7 @@ Setenv sets the value of the variable named by the key.
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 	"os/exec"
 )
 
@@ -1528,7 +1525,7 @@ Use with caution!
 package main
 
 import (
-	envish "github.com/ganbarodigital/go_envish/v3"
+	envish "github.com/ganbarodigital/go_envish"
 	"os/exec"
 )
 
